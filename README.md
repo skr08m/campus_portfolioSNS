@@ -1,2 +1,47 @@
 # campus_portfolioSNS
-test
+
+## 基本的なgitの使い方
+
+1. git管理対象のフォルダ階層へ移動する(今回なら.../campus_portfolioSNS)
+2. ネットに公開できない情報を追加した場合（propertiesなどアクセス情報やAPIキーを書いたファイル）を追記したときは、gitignoreにそのファイルを忘れずに記述する
+3. コマンドに git add . と入力して実行
+4. 同じく、git commit -m "この中にコメント内容を書く"と入力し実行(例：git commit -m "~~クラスのcontrollerクラスを作成"　など)
+5. 同じく、git push origin main　と入力して実行
+<br>
+<br>
+
+## ブランチの作り方
+
+### 1. ブランチを作る
+`git checkout -b feature/add-login`<br>
+→ 「add-login という作業箱を作って、そこに移動する」という意味。
+
+### ◆ 2. 作業してコミットする
+`git add .`<br>
+`git commit -m "ログイン画面作成"`<br>
+※コミットは今まで通り。
+
+### ◆ 3. main に取り込む（merge）
+main に移動<br>
+`git checkout main`
+
+最新を取る（重要）<br>
+`git pull`
+
+merge方法<br>
+`git merge feature/add-login`
+
+### ◆ 4. 開発が終わったブランチは削除してOK(できたらで大丈夫です)
+`git branch -d feature/add-login`
+<br>
+<br>
+
+## 🎨 図で理解！（テキストで図解）
+main  ------------------------A----------------------C----
+               \       
+feature/add-login  ------B----------------------------/
+
+
+A：main の現在の状態<br>
+B：ブランチを切って新機能を実装<br>
+C：完成した B の内容を main に合体（merge）
