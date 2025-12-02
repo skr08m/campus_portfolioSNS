@@ -10,7 +10,7 @@ import java.time.ZonedDateTime;
 @Setter
 @NoArgsConstructor
 
-public class work {
+public class Work {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,7 +19,7 @@ public class work {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")  // 外部キー
-    private user user_id;
+    private User user_id;
 
     @Column(name = "work_name", length = 100)
     private String work_name;
