@@ -4,9 +4,9 @@
 
 1. git管理対象のフォルダ階層へ移動する(今回なら.../campus_portfolioSNS)
 2. ネットに公開できない情報を追加した場合（propertiesなどアクセス情報やAPIキーを書いたファイル）を追記したときは、gitignoreにそのファイルを忘れずに記述する
-3. コマンドに git add . と入力して実行
-4. 同じく、git commit -m "この中にコメント内容を書く"と入力し実行(例：git commit -m "~~クラスのcontrollerクラスを作成"　など)
-5. 同じく、git push origin main　と入力して実行
+3. コマンドに `git add .` と入力して実行
+4. 同じく、`git commit -m "この中にコメント内容を書く"`と入力し実行(例：git commit -m "~~クラスのcontrollerクラスを作成"　など)
+5. 同じく、`git push origin 更新したいブランチを指定`　と入力して実行（例：`git push origin main`など）
 <br>
 <br>
 
