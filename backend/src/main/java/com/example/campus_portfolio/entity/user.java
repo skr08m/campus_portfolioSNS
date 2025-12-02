@@ -1,4 +1,4 @@
-package com.example.project.entity;
+package com.example.campus_portfolio.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,6 +11,7 @@ public class user {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long user_id;
 
     @Column(name="username")
