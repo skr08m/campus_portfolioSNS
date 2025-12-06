@@ -37,8 +37,8 @@ public class Work {
     private String repository_url;
 
     @Column(name = "work_storage_url", length = 300)
-    private String workStorage_url;
+    private String work_storage_url;
 
     @Column(name = "work_extension", length = 20)
-    private String workExtension;
+    private String work_extension;
 }
