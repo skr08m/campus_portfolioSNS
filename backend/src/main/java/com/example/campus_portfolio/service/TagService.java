@@ -1,5 +1,6 @@
 package com.example.campus_portfolio.service;
 
+import com.example.campus_portfolio.dto.TagResponse;
 import com.example.campus_portfolio.entity.Tag;
 import com.example.campus_portfolio.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -14,8 +15,9 @@ public class TagService {
     
     private final TagRepository tagRepository;
 
-    //全タグ取得
-    public List<Tag> getAllTags(){
-        return tagRepository.findAll();
+    //全タグ取得(DTOに変換)
+    public List<TagResponse> getAllTags(){
+        List<Tag> tags = tagRepository.findAll();
+        return tags.stream().map(tag-> new TagResponse(tag.getTag_id(), tag.getTag_name())).toList();
     }
 }
