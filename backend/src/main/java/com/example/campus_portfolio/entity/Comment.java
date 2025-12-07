@@ -25,7 +25,7 @@ public class Comment {
     @JoinColumn(name = "work_id")
     private Work work_id;
 
-    @Column(name = "comment_content", columnDefinition = "TEXT", length = 300)
+    @Column(name = "comment_content", columnDefinition = "TEXT")
     private String comment_conten;
 
     @Column(name = "sent_at")
