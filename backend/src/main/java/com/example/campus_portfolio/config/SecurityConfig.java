@@ -19,8 +19,7 @@ public class SecurityConfig {
 						.anyRequest().authenticated())
 				.oauth2ResourceServer(oauth -> oauth
 						.jwt(jwt -> {
-						}) // ★ 新しい構文（ここは空でOK）
-				);
+						}));
 
 		return http.build();
 	}
