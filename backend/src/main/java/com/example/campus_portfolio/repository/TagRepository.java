@@ -5,8 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface TagRepository extends JpaRepository<Tag, Long> {
-
-    // 修正版：エンティティのフィールド名に合わせてメソッド名を変更
-    // findByName → findByTagName
-    Optional<Tag> findByTagName(String tagName);
+    
+    // 例えば名前で検索したい場合
+    Tag findByTagName(String Tagname);
 }

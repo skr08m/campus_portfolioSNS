@@ -19,7 +19,7 @@ public class Work {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id") // 外部キー
-    private User userId;
+    private User user;
 
     @Column(name = "work_name", length = 100)
     private String workName;

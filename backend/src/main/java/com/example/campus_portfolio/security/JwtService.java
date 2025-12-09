@@ -33,7 +33,7 @@ public class JwtService {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
-
+    
     // トークンからユーザーID取得
     public String getIdFromToken(String token) {
         return Jwts.parserBuilder()

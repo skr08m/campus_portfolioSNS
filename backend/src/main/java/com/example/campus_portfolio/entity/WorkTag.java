@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Table(name = "work_tag")
 
-public class Work_tag {
+public class WorkTag {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "work_tag_id")
@@ -17,9 +17,9 @@ public class Work_tag {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "work_id")
-    private Work workId;
+    private Work work;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id")
-    private Tag tagId;
+    private Tag tag;
 }
