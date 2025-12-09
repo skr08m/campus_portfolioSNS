@@ -15,19 +15,19 @@ public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
-    private Long comment_id;
+    private Long commentId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user_id;
+    private User userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "work_id")
-    private Work work_id;
+    private Work workId;
 
     @Column(name = "comment_content", columnDefinition = "TEXT")
-    private String comment_conten;
+    private String commentContent;
 
     @Column(name = "sent_at")
-    private ZonedDateTime sent_at;
+    private ZonedDateTime sentAt;
 }

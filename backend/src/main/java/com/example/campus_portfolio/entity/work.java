@@ -15,17 +15,17 @@ public class Work {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "work_id")
-    private Long work_id;
+    private Long workId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")  // 外部キー
-    private User user_id;
+    private User userId;
 
     @Column(name = "work_name", length = 100)
-    private String work_name;
+    private String workName;
 
     @Column(name = "work_upload_time")
-    private ZonedDateTime work_upload_time;
+    private ZonedDateTime workUploadTime;
 
     @Column(name = "title", length = 200)
     private String title;
@@ -34,11 +34,11 @@ public class Work {
     private String explanation;
 
     @Column(name = "repository_url", length = 300)
-    private String repository_url;
+    private String repositoryUrl;
 
     @Column(name = "work_storage_url", length = 300)
-    private String work_storage_url;
+    private String workStorageUrl;
 
     @Column(name = "work_extension", length = 20)
-    private String work_extension;
+    private String workExtension;
 }

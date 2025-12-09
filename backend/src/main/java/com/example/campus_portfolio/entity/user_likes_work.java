@@ -13,14 +13,13 @@ public class User_likes_work {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_likes_work_id") // カラム名を明示
-    private Long user_likes_workId;
+    private Long userLikesWorkId;
 
     @ManyToOne
     @JoinColumn(name = "user_id") // 外部キー
-    private User user_id;
+    private User userId;
 
     @ManyToOne
     @JoinColumn(name = "works_id") // 外部キー
-    private Work work_id;
+    private Work workId;
 }
-
