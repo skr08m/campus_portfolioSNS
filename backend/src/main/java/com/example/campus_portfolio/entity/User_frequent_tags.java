@@ -13,13 +13,13 @@ public class User_frequent_tags {
     @Id 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "frequent_tag_id")
-    private Long frequent_tag_id;
+    private Long frequentTagId;
  
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id")
-    private Tag tag_id;
+    private Tag tagId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user_id;   
+    private User userId;   
 }
