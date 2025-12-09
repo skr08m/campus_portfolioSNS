@@ -5,6 +5,6 @@ import org.springframework.stereotype.Repository;
 import com.example.campus_portfolio.entity.Comment;
 
 @Repository
-public interface commentRepository extends JpaRepository<Comment, Long> {
-
+public interface CommentRepository extends JpaRepository<Comment, Long> {
+    
 }

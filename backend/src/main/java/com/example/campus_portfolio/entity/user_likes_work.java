@@ -5,10 +5,9 @@ import lombok.*;
 
 @Entity
 @Table(name = "User_likes_work")
-@Getter 
+@Getter
 @Setter
 @NoArgsConstructor
-
 public class User_likes_work {
 
     @Id

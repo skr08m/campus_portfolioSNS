@@ -1,5 +1,11 @@
 package com.example.campus_portfolio.dto;
 
-public class LoginRequest {
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
+public class LoginRequest {
+    String email;
+    String password;
 }

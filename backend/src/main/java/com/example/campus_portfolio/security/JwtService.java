@@ -17,7 +17,7 @@ public class JwtService {
     @Value("${jwt.secret-key}")
     private String secretKey;
     Key key;
-
+    
     @PostConstruct
     public void init() {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
