@@ -18,6 +18,6 @@ public class TagService {
     //全タグ取得(DTOに変換)
     public List<TagResponse> getAllTags(){
         List<Tag> tags = tagRepository.findAll();
-        return tags.stream().map(tag-> new TagResponse(tag.getTag_id(), tag.getTag_name())).toList();
+        return tags.stream().map(tag-> new TagResponse(tag.getTagId(), tag.getTagName())).toList();
     }
 }

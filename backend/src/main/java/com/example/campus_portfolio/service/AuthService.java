@@ -24,17 +24,18 @@ public class AuthService {
     private final JwtService tokenProvider;
 
     // ユーザー登録
-    public User register(String email, String rawPassword, String userName) {
+    public Boolean register(String email, String rawPassword, String userName) {
         if (userRepository.findByEmail(email).isPresent()) {
             throw new RuntimeException("すでに登録済みです");
         }
 
         // Userモデルの作成と保存
         User user = new User();
-        user.setMail_address(email);
+        user.setMailAddress(email);
         user.setPassword(passwordEncoder.encode(rawPassword));
         user.setUsername(userName);
-        return userRepository.save(user);
+        userRepository.save(user);
+        return true;
     }
 
     // ログイン

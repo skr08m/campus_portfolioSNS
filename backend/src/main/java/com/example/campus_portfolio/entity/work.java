@@ -18,7 +18,7 @@ public class Work {
     private Long workId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")  // 外部キー
+    @JoinColumn(name = "user_id") // 外部キー
     private User userId;
 
     @Column(name = "work_name", length = 100)
