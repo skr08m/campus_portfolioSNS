@@ -14,4 +14,5 @@ public class UserResponse {
     private String selfIntroduction; //自己紹介
     private String profilePhotoUrl; //プロフィール
     private String role; //ロール
+    private String passwordPlaceholder; //パスワード（ただしサービス層ではダミー文字列で返す予定）
 }
