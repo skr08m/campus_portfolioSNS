@@ -11,30 +11,24 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
+    @Column(name = "user_id")
     private Long userId;
 
-    @Column(name="username")
+    @Column(name = "username")
     private String username;
 
-    @Column(name="mail_address")
+    @Column(name = "mail_address")
     private String mailAddress;
 
-    @Column(name="password")
+    @Column(name = "password")
     private String password;
 
-    @Column(name="self_introduction")
+    @Column(name = "self_introduction")
     private String selfIntroduction;
 
-    @Column(name="profile_photo_url")
+    @Column(name = "profile_photo_url")
     private String profilePhotoUrl;
 
-    @Column(name="role")
+    @Column(name = "role")
     private String role;
 }
-
-
-
-
-
-

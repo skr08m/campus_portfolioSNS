@@ -2,17 +2,13 @@ package com.example.campus_portfolio.controller;
 
 import com.example.campus_portfolio.dto.LoginRequest;
 import com.example.campus_portfolio.dto.RegisterRequest;
-import com.example.campus_portfolio.security.JwtService;
 import com.example.campus_portfolio.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

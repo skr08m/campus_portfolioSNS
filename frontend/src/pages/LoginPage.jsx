@@ -36,7 +36,7 @@ const LoginPage = () => {
       alert('ログイン成功！');
       
       // ログイン成功後、/home ページへ遷移
-      navigate('/home'); 
+      navigate('/home');
     } else {
       alert('メールアドレスまたはパスワードが間違っています。');
     }

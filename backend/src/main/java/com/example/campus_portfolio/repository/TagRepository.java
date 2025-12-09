@@ -8,5 +8,5 @@ import com.example.campus_portfolio.entity.Tag;
 public interface TagRepository extends JpaRepository<Tag, Long> {
     
     // 例えば名前で検索したい場合
-    Tag findByName(String name);
+    Tag findByTagName(String Tagname);
 }
