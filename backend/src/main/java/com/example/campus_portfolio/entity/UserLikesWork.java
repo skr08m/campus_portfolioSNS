@@ -8,7 +8,7 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-public class User_likes_work {
+public class UserLikesWork {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,9 +17,9 @@ public class User_likes_work {
 
     @ManyToOne
     @JoinColumn(name = "user_id") // 外部キー
-    private User userId;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "works_id") // 外部キー
-    private Work workId;
+    private Work work;
 }

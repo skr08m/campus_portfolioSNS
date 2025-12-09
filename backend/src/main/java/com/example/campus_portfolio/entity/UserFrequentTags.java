@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @Table(name="user_frequent_tags")
 
-public class User_frequent_tags {
+public class UserFrequentTags {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "frequent_tag_id")
@@ -17,9 +17,9 @@ public class User_frequent_tags {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id")
-    private Tag tagId;
+    private Tag tag;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User userId;
+    private User user;
 }
