@@ -2,13 +2,15 @@ package com.example.campus_portfolio.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.example.campus_portfolio.entity.Work;
 
 import java.util.*;
 
 public interface WorkRepository extends JpaRepository<Work, Long> {
-    Optional<Work> getByUserId(String userId);
+    @Query("SELECT w FROM Work w WHERE w.user.userId = :userId")
+    Optional<Work> getByUserId(@Param("userId") Long userId);
 
     List<Work> findByTitleContaining(String keyword);
 
