@@ -12,7 +12,7 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
 
-    private Long user_id;
+    private Long userId;
 
     @Column(name="username")
     private String username;
@@ -24,10 +24,10 @@ public class User {
     private String password;
 
     @Column(name="self_introduction")
-    private String self_introduction;
+    private String selfIntroduction;
 
     @Column(name="profile_photo_url")
-    private String profile_photo_url;
+    private String profilePhotoUrl;
 
     @Column(name="role")
     private String role;
