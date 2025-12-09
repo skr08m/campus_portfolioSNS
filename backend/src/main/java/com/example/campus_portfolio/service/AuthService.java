@@ -25,7 +25,7 @@ public class AuthService {
 
     // ユーザー登録
     public Boolean register(String email, String rawPassword, String userName) {
-        if (userRepository.findByEmail(email).isPresent()) {
+        if (userRepository.findByMailAddress(email).isPresent()) {
             throw new RuntimeException("すでに登録済みです");
         }
 
@@ -44,9 +44,9 @@ public class AuthService {
         Authentication authentication = authenticationManager.authenticate(auth);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        User user = userRepository.findByEmail(email)
+        User user = userRepository.findByMailAddress(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        String userId = String.valueOf(user.getUser_id());
+        String userId = String.valueOf(user.getUserId());
 
         return tokenProvider.generateJwt(userId);
     }
@@ -58,7 +58,7 @@ public class AuthService {
             throw new RuntimeException("ユーザーが認証されていません");
         }
         String email = auth.getName();
-        return userRepository.findByEmail(email)
+        return userRepository.findByMailAddress(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }
