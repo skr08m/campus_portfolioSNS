@@ -1,0 +1,7 @@
+DTO(data transfar object)
+フロントとバックエンドでやり取りするJSONオブジェクトを管理します
+
+例えば、ユーザ情報を受け取るためのAPIがあるのであれば、
+Userというdtoクラスを作成し、このオブジェクトをControllerなどで返します
+
+クラス名は~~~Dtoとしてください(例：UserDtoなど)
