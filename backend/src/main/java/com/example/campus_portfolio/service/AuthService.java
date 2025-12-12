@@ -60,13 +60,15 @@ public class AuthService {
     }
 
     // 現在のユーザー取得
-    public Long getCurrentUserId() {
+    public User getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
             throw new RuntimeException("ユーザーが認証されていません");
         }
         Jwt jwt = (Jwt) auth.getPrincipal();
         Long userId = Long.valueOf(jwt.getSubject());
-        return userId;
+
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("ユーザーが存在しません"));
     }
 }
