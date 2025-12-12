@@ -1,10 +1,16 @@
 package com.example.campus_portfolio.service;
 
+import com.example.campus_portfolio.entity.Work;
+import com.example.campus_portfolio.repository.WorkRepository;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.stereotype.Service;
 import java.io.IOException;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Service
@@ -16,8 +22,7 @@ public class DriveService {
 
     // 新規作品投稿
     public Work createWork(Work work) {
-        work.setCreatedAt(LocalDateTime.now());
-        work.setUpdatedAt(LocalDateTime.now());
+        work.setWorkUploadTime(ZonedDateTime.now());
         return workRepository.save(work);
     }
 

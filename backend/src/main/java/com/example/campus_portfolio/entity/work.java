@@ -36,8 +36,10 @@ public class Work {
     @Column(name = "repository_url", length = 300)
     private String repositoryUrl;
 
-    @Column(name = "work_storage_url", length = 300)
-    private String workStorageUrl;
+    // DB にバイナリ保存（BYTEA）
+    @Lob
+    @Column(name = "work_data", columnDefinition = "BYTEA")
+    private byte[] workData;
 
     @Column(name = "work_extension", length = 20)
     private String workExtension;
