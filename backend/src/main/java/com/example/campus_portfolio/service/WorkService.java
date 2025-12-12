@@ -50,7 +50,7 @@ public class WorkService {
         work.setTitle(request.getTitle());
         work.setExplanation(request.getExplanation());
         work.setRepositoryUrl(request.getRepositoryUrl());
-        work.setExplanation(request.getWorkExtension());
+        work.setWorkExtension(request.getWorkExtension());
 
         // データ取り出し
         MultipartFile file = request.getWorkData();
@@ -58,25 +58,20 @@ public class WorkService {
             work.setWorkData(file.getBytes());
         }
 
-        Work savedWork = workRepository.save(work);
-
         // タグ処理
         if (request.getTags() == null || request.getTags().length <= 0) {
-            throw new Exception("作品は保存されましたが、タグ情報との連携に失敗しました");
+            return workRepository.save(work);
         }
-        List<Tag> tagList = new ArrayList<>();
+
         for (String tagName : request.getTags()) {
             Tag tag = tagRepository.findByTagName(tagName);
             if (tag == null) {
-                tag = new Tag();
-                tag.setTagName(tagName);
-                tag = tagRepository.save(tag);
+                System.out.println("nullによりタグ登録スキップ");
+                continue;
             }
-            tagList.add(tag);
+            work.getTags().add(tag); // @ManyToMany で自動的に中間テーブルに反映
         }
-        savedWork.setTags(tagList); // ManyToMany の場合
-
-        return savedWork;
+        return workRepository.save(work);
     }
 
     // // 作品更新（投稿者または管理者のみ）
