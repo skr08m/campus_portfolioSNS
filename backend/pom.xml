@@ -57,20 +57,6 @@
 			<scope>runtime</scope>
 		</dependency>
 
-		<!-- Google API 共通クライアント -->
-		<dependency>
-			<groupId>com.google.api-client</groupId>
-			<artifactId>google-api-client</artifactId>
-			<version>1.35.2</version>
-		</dependency>
-
-		<!-- Google Drive API -->
-		<!-- https://mvnrepository.com/artifact/com.google.apis/google-api-services-drive -->
-		<dependency>
-			<groupId>com.google.apis</groupId>
-			<artifactId>google-api-services-drive</artifactId>
-			<version>v3-rev197-1.25.0</version>
-		</dependency>
 		<!-- JSON 解析用 -->
 		<dependency>
 			<groupId>com.google.http-client</groupId>

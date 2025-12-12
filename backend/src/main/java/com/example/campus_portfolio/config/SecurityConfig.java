@@ -1,5 +1,9 @@
 package com.example.campus_portfolio.config;
 
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,20 +24,9 @@ public class SecurityConfig {
 	}
 
 	@Bean
-	public JwtDecoder jwtDecoder() {
-		return NimbusJwtDecoder.withPublicKey(getPublicKey()).build();
-	}
-
-	private java.security.interfaces.RSAPublicKey getPublicKey() {
-		try {
-			java.security.spec.X509EncodedKeySpec spec = new java.security.spec.X509EncodedKeySpec(
-					java.util.Base64.getDecoder().decode(PUBLIC_KEY.replaceAll("\\n", "")
-							.replace("-----BEGIN PUBLIC KEY-----", "").replace("-----END PUBLIC KEY-----", "")));
-			return (java.security.interfaces.RSAPublicKey) java.security.KeyFactory.getInstance("RSA")
-					.generatePublic(spec);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+	public JwtDecoder jwtDecoder(@Value("${jwt.secret-key}") String secretKey) {
+		SecretKey key = new SecretKeySpec(secretKey.getBytes(), "HMACSHA256");
+		return NimbusJwtDecoder.withSecretKey(key).build();
 	}
 
 	// どのURLからのアクセスなら認証なしで通すかを決める

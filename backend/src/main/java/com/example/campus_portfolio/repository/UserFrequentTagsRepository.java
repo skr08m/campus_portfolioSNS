@@ -7,6 +7,5 @@ import java.util.List;
 
 // ユーザの頻出タグ（User_frequent_tags）を操作するリポジトリ
 public interface UserFrequentTagsRepository extends JpaRepository<UserFrequentTags, Long> {
-    List<UserFrequentTags> findByUserId(User user); // あるユーザの全頻出タグを取得
-    void deleteByUserId(User user); // あるユーザの頻出タグを一括削除
+    List<UserFrequentTags> findByUser(User user); // あるユーザの全頻出タグを取得
 }

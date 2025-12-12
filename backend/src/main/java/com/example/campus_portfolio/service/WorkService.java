@@ -1,12 +1,19 @@
 package com.example.campus_portfolio.service;
 
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.example.campus_portfolio.dto.WorkCreateRequest;
+import com.example.campus_portfolio.entity.Tag;
+import com.example.campus_portfolio.entity.User;
 import com.example.campus_portfolio.entity.Work;
+import com.example.campus_portfolio.repository.TagRepository;
 import com.example.campus_portfolio.repository.WorkRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -16,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class WorkService {
 
     private final WorkRepository workRepository;
+    private final TagRepository tagRepository;
 
     // 作品一覧取得（オプションでタイトル検索）
     public List<Work> listWorks(String keyword) {
@@ -31,6 +39,39 @@ public class WorkService {
         return workRepository.findById(workId)
                 .map(Work::getExplanation)
                 .orElseThrow(() -> new RuntimeException("作品が存在しません"));
+    }
+
+    // 作品投稿
+    public Work createWork(User user, WorkCreateRequest request) throws Exception {
+
+        Work work = new Work();
+        work.setUser(user);
+        work.setWorkUploadTime(ZonedDateTime.now());
+        work.setTitle(request.getTitle());
+        work.setExplanation(request.getExplanation());
+        work.setRepositoryUrl(request.getRepositoryUrl());
+        work.setWorkExtension(request.getWorkExtension());
+
+        // データ取り出し
+        MultipartFile file = request.getWorkData();
+        if (file != null && !file.isEmpty()) {
+            work.setWorkData(file.getBytes());
+        }
+
+        // タグ処理
+        if (request.getTags() == null || request.getTags().length <= 0) {
+            return workRepository.save(work);
+        }
+
+        for (String tagName : request.getTags()) {
+            Tag tag = tagRepository.findByTagName(tagName);
+            if (tag == null) {
+                System.out.println("nullによりタグ登録スキップ");
+                continue;
+            }
+            work.getTags().add(tag); // @ManyToMany で自動的に中間テーブルに反映
+        }
+        return workRepository.save(work);
     }
 
     // // 作品更新（投稿者または管理者のみ）
