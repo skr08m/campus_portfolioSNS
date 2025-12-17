@@ -12,5 +12,5 @@ public class WorkCreateRequest {
     private String repositoryUrl = null;
     private MultipartFile workData;
     private String workExtension;
-    private String[] tags;
+    private String[] tags = null;
 }

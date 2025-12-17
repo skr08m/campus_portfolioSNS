@@ -1,7 +1,5 @@
 package com.example.campus_portfolio.service;
 
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
 
@@ -42,11 +40,6 @@ public class AuthService {
 
     // ログイン
     public String login(String email, String rawPassword) {
-        // Authentication auth = new UsernamePasswordAuthenticationToken(email,
-        // rawPassword);
-        // Authentication authentication = authenticationManager.authenticate(auth);
-        // SecurityContextHolder.getContext().setAuthentication(authentication);
-
         User user = userRepository.findByMailAddress(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
