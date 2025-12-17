@@ -6,6 +6,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -30,18 +31,32 @@ public class SecurityConfig {
 	}
 
 	// どのURLからのアクセスなら認証なしで通すかを決める
+	// フィルターなし用設定
 	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
+	@Order(1)
+	public SecurityFilterChain publicFilterChain(HttpSecurity http) throws Exception {
 		http
-				.csrf(csrf -> csrf.disable())
+				.securityMatcher(
+						"/api/auth/**",
+						"/h2-console/**")
 				.authorizeHttpRequests(auth -> auth
-						.requestMatchers("/auth/login").permitAll()
-						.requestMatchers("/auth/register").permitAll()
+						.anyRequest().permitAll())
+				.csrf(csrf -> csrf.disable())
+				.headers(headers -> headers
+						.frameOptions(frame -> frame.disable()));
+
+		return http.build();
+	}
+
+	// フィルターあり用設定
+	@Bean
+	@Order(2)
+	public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+		http
+				.authorizeHttpRequests(auth -> auth
 						.anyRequest().authenticated())
-				.oauth2ResourceServer(oauth -> oauth
-						.jwt(jwt -> {
-						}));
+				.csrf(csrf -> csrf.disable())
+				.oauth2ResourceServer(oauth -> oauth.jwt());// oauth2サーバを使うと、jwtがないリクエストをすべて弾いてしまいpermitAllできない
 
 		return http.build();
 	}
