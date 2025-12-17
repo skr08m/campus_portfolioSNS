@@ -8,7 +8,7 @@ public class CampusPortfolioApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(CampusPortfolioApplication.class, args);
-		System.out.println("server is running");
+		System.out.println("server is running!");
 	}
 
 }
