@@ -5,6 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "java",
+            "name": "CampusPortfolioApplication",
+            "request": "launch",
+            "mainClass": "com.example.campus_portfolio.CampusPortfolioApplication",
+            "projectName": "campus_portfolio"
+        },
+        {
             "type": "chrome",
             "request": "launch",
             "name": "localhost に対して Chrome を起動する",

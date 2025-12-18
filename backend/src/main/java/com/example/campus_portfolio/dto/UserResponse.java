@@ -5,7 +5,7 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor 
+@AllArgsConstructor
 
 public class UserResponse {
     private Long userId; //ユーザーIDを返す

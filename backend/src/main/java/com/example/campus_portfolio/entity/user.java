@@ -1,5 +1,8 @@
 package com.example.campus_portfolio.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,4 +34,12 @@ public class User {
 
     @Column(name = "role")
     private String role;
+
+    @ManyToMany
+    @JoinTable(
+        name = "user_likes_work",
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "work_id")
+    )
+    private List<Work> likedWorks = new ArrayList<>();
 }
