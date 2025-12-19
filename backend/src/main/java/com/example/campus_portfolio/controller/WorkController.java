@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.example.campus_portfolio.dto.WorkCreateRequest;
 import com.example.campus_portfolio.dto.WorkFileHttpResponse;

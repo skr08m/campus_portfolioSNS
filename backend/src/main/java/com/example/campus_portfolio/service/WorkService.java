@@ -6,7 +6,6 @@ import java.util.List;
 
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -71,7 +70,6 @@ public class WorkService {
 
     // 作品データ取得
     public WorkFileHttpResponse getWorkFile(Long workId) {
-
         Work work = workRepository.findById(workId)
                 .orElseThrow(() -> new IllegalArgumentException("作品が存在しません"));
 
@@ -81,9 +79,10 @@ public class WorkService {
 
         boolean inline = FileTypeConstants.INLINE_EXTENSIONS.contains(ext);
 
+        String fullFileName = work.getTitle() + "." + ext;
         String disposition = ContentDisposition
                 .builder(inline ? "inline" : "attachment")
-                .filename("work." + ext)
+                .filename(fullFileName, java.nio.charset.StandardCharsets.UTF_8)
                 .build()
                 .toString();
 

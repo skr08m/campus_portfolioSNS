@@ -36,7 +36,6 @@ public class Work {
     private String repositoryUrl;
 
     // DB にバイナリ保存（BYTEA）
-    @Lob
     @Column(name = "work_data", columnDefinition = "BYTEA")
     private byte[] workData;
 

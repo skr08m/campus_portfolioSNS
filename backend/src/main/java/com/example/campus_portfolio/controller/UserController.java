@@ -15,7 +15,7 @@ public class UserController {
 
     private final UserService userService;
 
-    //ログイン中ユーザIDを取得
+    // ログイン中ユーザIDを取得
     private Long getUserId(Authentication authentication) {
         return Long.valueOf(authentication.getName());
     }
@@ -31,8 +31,7 @@ public class UserController {
     @PutMapping("/me")
     public UserResponse updateMe(
             @RequestBody UserUpdateRequest request,
-            Authentication authentication
-    ) {
+            Authentication authentication) {
         Long userId = getUserId(authentication);
         return userService.updateMe(userId, request);
     }
@@ -55,8 +54,7 @@ public class UserController {
     @PutMapping("/me/favorite-tags")
     public void updateFavoriteTags(
             @RequestBody List<Long> tagIds,
-            Authentication authentication
-    ) {
+            Authentication authentication) {
         Long userId = getUserId(authentication);
         userService.updateFavoriteTags(userId, tagIds);
     }
