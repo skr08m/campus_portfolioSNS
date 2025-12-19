@@ -17,4 +17,8 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
     // 投稿時間でソートし、上位n件を持ってくる関数
     @Query("SELECT w FROM Work w ORDER BY w.workUploadTime DESC")
     List<Work> findLatestWorks(org.springframework.data.domain.Pageable pageable);
+
+    // 作品に対するいいね数をカウント
+    @Query("SELECT COUNT(u) FROM User u JOIN u.likedWorks w WHERE w.workId = :workId")
+    int countLikes(@Param("workId") Long workId);
 }

@@ -49,7 +49,7 @@ public class WorkService {
     }
 
     // Work→WorkResponseに変換
-    private WorkInfoResponse convertWorkToDTO(Work work) {
+    public WorkInfoResponse convertWorkToDTO(Work work) { //LikeControllerから呼べるようにpublicに変更しました
         WorkInfoResponse workResponse = new WorkInfoResponse();
 
         workResponse.setId(work.getWorkId());
