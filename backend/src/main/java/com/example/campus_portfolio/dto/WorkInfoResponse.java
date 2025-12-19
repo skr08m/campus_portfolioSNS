@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class WorkResponse {
+public class WorkInfoResponse {
     private Long id;
     private String title;
     private String explanation;
