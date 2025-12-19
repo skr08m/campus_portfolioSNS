@@ -4,18 +4,22 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.campus_portfolio.dto.TagResponse;
 import com.example.campus_portfolio.dto.WorkCreateRequest;
+import com.example.campus_portfolio.dto.WorkFileHttpResponse;
 import com.example.campus_portfolio.dto.WorkInfoResponse;
 import com.example.campus_portfolio.entity.Tag;
 import com.example.campus_portfolio.entity.User;
 import com.example.campus_portfolio.entity.Work;
 import com.example.campus_portfolio.repository.TagRepository;
 import com.example.campus_portfolio.repository.WorkRepository;
+import com.example.campus_portfolio.util.FileTypeConstants;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,8 +36,7 @@ public class WorkService {
 
         // 検索ワード指定の有無で分岐
         if (keyword == null || keyword.isBlank()) {
-            responseWorkList = workRepository.findAll()
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            responseWorkList = workRepository.findAll();
         } else {
             responseWorkList = workRepository.findByTitleContaining(keyword);
         }
@@ -64,6 +67,30 @@ public class WorkService {
         }
         workResponse.setTags(tags);
         return workResponse;
+    }
+
+    // 作品データ取得
+    public WorkFileHttpResponse getWorkFile(Long workId) {
+
+        Work work = workRepository.findById(workId)
+                .orElseThrow(() -> new IllegalArgumentException("作品が存在しません"));
+
+        String ext = work.getWorkExtension().toLowerCase();
+
+        MediaType mediaType = FileTypeConstants.getMediaType(ext);
+
+        boolean inline = FileTypeConstants.INLINE_EXTENSIONS.contains(ext);
+
+        String disposition = ContentDisposition
+                .builder(inline ? "inline" : "attachment")
+                .filename("work." + ext)
+                .build()
+                .toString();
+
+        return new WorkFileHttpResponse(
+                work.getWorkData(),
+                mediaType,
+                disposition);
     }
 
     // 作品の説明を取得
