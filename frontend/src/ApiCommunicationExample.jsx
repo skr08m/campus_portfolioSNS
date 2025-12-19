@@ -104,3 +104,29 @@ class ApiCommunicationExample {
 }
 
 export default ApiCommunicationExample;
+
+
+// ==================================================
+// 作品投稿など、テキスト以外のデータをやり取りするAPIの利用方法(formDataを利用する方法)
+// ==================================================
+
+//ここで送るデータを作ります
+const formData = new FormData();
+formData.append("title", title);
+formData.append("explanation", explanation);
+formData.append("repositoryUrl", repositoryUrl);
+formData.append("workExtension", workExtension);
+formData.append("workData", workData);
+
+//拡張for文と同じやつ、tag配列を作ってます
+tags.forEach(tag => {
+    formData.append("tags", tag);
+});
+
+await fetch("http://localhost:8080/api/works", {//ここもURL(http://localhost:8080まで)は変数化推奨
+    method: "POST",
+    headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,//localStorageでJWTを保存したと仮定しています
+    },
+    body: formData,
+});
