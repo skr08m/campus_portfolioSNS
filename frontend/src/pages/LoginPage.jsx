@@ -35,6 +35,7 @@ const LoginPage = () => {
 
     // 例: 簡易的な認証チェック (実際にはAPI通信を行う)
     if (formData.email === 'test@example.com' && formData.password === 'password') {
+      alert('ログイン成功！');
 
       // ログイン成功後、/home ページへ遷移
       navigate('/home');
@@ -45,21 +46,20 @@ const LoginPage = () => {
 
   return (
     <>
-    {/* サービス名表示 */}
     <Container className="text-center mt-5 mb-3">
+      {/* h1 の mb-4 を mb-2 などに調整し、p タグなどを使ってキャッチフレーズを追加しても良い */}
       <h1>ポートフォリオ共有サービス</h1> 
     </Container>
-    
-    {/* 以下ログイン関連 */}
+    {/* // Containerコンポーネントでコンテンツを中央寄せにし、パディングを適用 */}
     <Container className="my-5 mx-auto" style={{ maxWidth: '300px' }}>
-      {/* タイトル表示 */}
       <h2 className="text-center mb-4">ログイン</h2>
 
-      {/* onSubmitを設定 */}
+      {/* HTMLの<form>をFormコンポーネントに置き換え、onSubmitを設定 */}
       <Form onSubmit={handleSubmit}>
 
         {/* メールアドレス入力欄 */}
         <Form.Group className="mb-3" controlId="formBasicEmail">
+          {/* <Form.Label>メールアドレス</Form.Label> */}
           <Form.Control
             type="email"
             name="email"
@@ -72,6 +72,7 @@ const LoginPage = () => {
 
         {/* パスワード入力欄 */}
         <Form.Group className="mb-4" controlId="formBasicPassword">
+          {/* <Form.Label>パスワード</Form.Label> */}
           <Form.Control
             type="password"
             name="password"
@@ -83,6 +84,7 @@ const LoginPage = () => {
         </Form.Group>
 
         {/* ログインボタン */}
+        {/* HTMLの<button>をButtonコンポーネントに置き換え、variantで色を指定 */}
         <div className="d-grid">
           <Button variant="primary" type="submit" size="lg">
             ログイン
@@ -90,10 +92,10 @@ const LoginPage = () => {
         </div>
       </Form>
 
-      <p className="text-center mt-4">
-        アカウントをお持ちでないですか？ <a href="/register">新規登録</a>
-      </p>
-    </Container>
+        <p className="text-center mt-4">
+          アカウントをお持ちでないですか？ <a href="/register">新規登録</a>
+        </p>
+      </Container>
     </>
   );
 };
