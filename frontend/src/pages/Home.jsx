@@ -1,7 +1,7 @@
 // src/pages/Home.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ApiCommunicationExample from "../ApiCommunicationExample";
+import ApiCommunicationExample from "../api/ApiCommunicationExample";
 import { House, Search, Upload, Images, Person, BoxArrowRight } from "react-bootstrap-icons";
 
 const Home = () => {
