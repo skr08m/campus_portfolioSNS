@@ -9,6 +9,7 @@ import UpWorks from "./pages/UpWorks";
 import ConfirmWorks from "./pages/ConfirmWorks";
 import CompleteUpWorks from "./pages/CompleteUpWorks";
 import Register from './pages/Register';
+import Logout from './pages/Logout';
 
 function App() {
 
@@ -41,6 +42,9 @@ function App() {
 
       {/* 新規登録 */}
       <Route path="/register" element={<Register />} />
+
+      {/* ログアウト */}
+      <Route path="/logout" element={<Logout />} />
     </Routes>
   )
 }

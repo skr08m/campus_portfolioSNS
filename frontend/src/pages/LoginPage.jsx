@@ -26,7 +26,6 @@ const LoginPage = () => {
     });
   };
 
-  // 2. イベントハンドラ: フォーム送信時の処理
   const handleSubmit = async (e) => {
     e.preventDefault();
 
