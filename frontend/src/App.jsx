@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Find from "./pages/Find";
 import Result from './pages/Result';
 import UpWorks from "./pages/UpWorks";
+import ConfirmWorks from "./pages/ConfirmWorks";
 import CompleteUpWorks from "./pages/CompleteUpWorks";
 
 function App() {
