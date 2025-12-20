@@ -1,20 +1,24 @@
 package com.example.campus_portfolio.service;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.campus_portfolio.dto.TagResponse;
 import com.example.campus_portfolio.dto.WorkCreateRequest;
+import com.example.campus_portfolio.dto.WorkFileHttpResponse;
+import com.example.campus_portfolio.dto.WorkInfoResponse;
 import com.example.campus_portfolio.entity.Tag;
 import com.example.campus_portfolio.entity.User;
 import com.example.campus_portfolio.entity.Work;
 import com.example.campus_portfolio.repository.TagRepository;
 import com.example.campus_portfolio.repository.WorkRepository;
+import com.example.campus_portfolio.util.FileTypeConstants;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,12 +30,66 @@ public class WorkService {
     private final TagRepository tagRepository;
 
     // 作品一覧取得（オプションでタイトル検索）
-    public List<Work> listWorks(String keyword) {
-        if (keyword == null || keyword.isEmpty()) {
-            return workRepository.findAll();
+    public List<WorkInfoResponse> getWorkInfoList(String keyword) {
+        List<Work> responseWorkList = new ArrayList<>();
+
+        // 検索ワード指定の有無で分岐
+        if (keyword == null || keyword.isBlank()) {
+            responseWorkList = workRepository.findAll();
+        } else {
+            responseWorkList = workRepository.findByTitleContaining(keyword);
         }
-        List<Work> responseList = workRepository.findByTitleContaining(keyword);
-        return responseList;
+
+        // 返り値のList生成
+        List<WorkInfoResponse> res = new ArrayList<>();
+        for (Work w : responseWorkList) {
+            res.add(convertWorkToDTO(w));
+        }
+        return res;
+    }
+
+    // Work→WorkResponseに変換
+    public WorkInfoResponse convertWorkToDTO(Work work) { //LikeControllerから呼べるようにpublicに変更しました
+        WorkInfoResponse workResponse = new WorkInfoResponse();
+
+        workResponse.setId(work.getWorkId());
+        workResponse.setTitle(work.getTitle());
+        workResponse.setExplanation(work.getExplanation());
+        workResponse.setRepositoryUrl(work.getRepositoryUrl());
+        workResponse.setWorkUploadTime(String.valueOf(work.getWorkUploadTime()));
+        workResponse.setWorkExtension(work.getWorkExtension());
+
+        // tagの追加
+        List<TagResponse> tags = new ArrayList<>();
+        for (Tag w : work.getTags()) {
+            tags.add(new TagResponse(w.getTagId(), w.getTagName()));
+        }
+        workResponse.setTags(tags);
+        return workResponse;
+    }
+
+    // 作品データ取得
+    public WorkFileHttpResponse getWorkFile(Long workId) {
+        Work work = workRepository.findById(workId)
+                .orElseThrow(() -> new IllegalArgumentException("作品が存在しません"));
+
+        String ext = work.getWorkExtension().toLowerCase();
+
+        MediaType mediaType = FileTypeConstants.getMediaType(ext);
+
+        boolean inline = FileTypeConstants.INLINE_EXTENSIONS.contains(ext);
+
+        String fullFileName = work.getTitle() + "." + ext;
+        String disposition = ContentDisposition
+                .builder(inline ? "inline" : "attachment")
+                .filename(fullFileName, java.nio.charset.StandardCharsets.UTF_8)
+                .build()
+                .toString();
+
+        return new WorkFileHttpResponse(
+                work.getWorkData(),
+                mediaType,
+                disposition);
     }
 
     // 作品の説明を取得
@@ -45,7 +103,7 @@ public class WorkService {
     public Work createWork(User user, WorkCreateRequest request) throws Exception {
 
         Work work = new Work();
-        work.setUser(user);
+        work.setUser(user);// FKを判定するために使うので、インスタンスにuserIdだけ入っていればOK
         work.setWorkUploadTime(ZonedDateTime.now());
         work.setTitle(request.getTitle());
         work.setExplanation(request.getExplanation());
@@ -59,7 +117,7 @@ public class WorkService {
         }
 
         // タグ処理
-        if (request.getTags() == null || request.getTags().length <= 0) {
+        if (request.getTags() == null || request.getTags().size() <= 0) {
             return workRepository.save(work);
         }
 

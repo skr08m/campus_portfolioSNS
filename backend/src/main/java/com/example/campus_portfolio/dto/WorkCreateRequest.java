@@ -1,4 +1,5 @@
 package com.example.campus_portfolio.dto;
+import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,5 +13,5 @@ public class WorkCreateRequest {
     private String repositoryUrl = null;
     private MultipartFile workData;
     private String workExtension;
-    private String[] tags = null;
+    private List<String> tags = null;
 }
