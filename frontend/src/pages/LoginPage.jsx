@@ -39,8 +39,8 @@ const LoginPage = () => {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            mailAddress: formData.email, // 👈 キー名はJava側に合わせる
-            passWord: formData.password
+            email: formData.email, // 👈 キー名はJava側に合わせる
+            password: formData.password
           })
         }
       );
