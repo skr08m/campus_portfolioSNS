@@ -55,7 +55,11 @@ const Home = () => {
                         見つける
                     </li>
 
-                    <li className="list-group-item bg-dark text-white border-0">
+                    <li
+                        className="list-group-item bg-dark text-white border-0"
+                        style={{ cursor: "pointer" }}
+                        onClick={() => navigate("/upworks")}
+                    >
                         <Upload className="me-2" /> 作品投稿
                     </li>
                     <li className="list-group-item bg-dark text-white border-0">
