@@ -5,8 +5,11 @@ import LoginPage from './pages/LoginPage';
 import Home from './pages/Home';
 import Find from "./pages/Find";
 import Result from './pages/Result';
-import Register from './pages/Register';
+import UpWorks from "./pages/UpWorks";
+import ConfirmWorks from "./pages/ConfirmWorks";
+import CompleteUpWorks from "./pages/CompleteUpWorks";
 
+import Register from './pages/Register';
 function App() {
 
   return (
@@ -27,9 +30,17 @@ function App() {
       {/* 検索結果 */}
       <Route path="/result" element={<Result />} />
 
-      {/* 新規登録 */}
-      <Route path="/register" element={<Register />} />
+    {/*作品投稿画面*/}
+      <Route path="/upworks" element={<UpWorks />} />
 
+      {/*UpWorksでの内容確認画面*/}
+      <Route path="/confirm" element={<ConfirmWorks />} />
+
+      {/*投稿完了を表示する画面*/}
+      <Route path="/complete" element={<CompleteUpWorks />} />
+
+    {/* 新規登録 */}
+      <Route path="/register" element={<Register />} />
     </Routes>
   )
 }
