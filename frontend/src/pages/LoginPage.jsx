@@ -35,6 +35,9 @@ const LoginPage = () => {
 
     // 例: 簡易的な認証チェック (実際にはAPI通信を行う)
     if (formData.email === 'test@example.com' && formData.password === 'password') {
+      // --- 修正箇所：JWTをlocalStorageに保存する ---
+      // 本来はAPIのレスポンスから取得しますが、今はダミーの値を入れます
+      localStorage.setItem("jwt", "dummy-token-for-now");
       alert('ログイン成功！');
 
       // ログイン成功後、/home ページへ遷移
@@ -46,51 +49,51 @@ const LoginPage = () => {
 
   return (
     <>
-    <Container className="text-center mt-5 mb-3">
-      {/* h1 の mb-4 を mb-2 などに調整し、p タグなどを使ってキャッチフレーズを追加しても良い */}
-      <h1>ポートフォリオ共有サービス</h1> 
-    </Container>
-    {/* // Containerコンポーネントでコンテンツを中央寄せにし、パディングを適用 */}
-    <Container className="my-5 mx-auto" style={{ maxWidth: '300px' }}>
-      <h2 className="text-center mb-4">ログイン</h2>
+      <Container className="text-center mt-5 mb-3">
+        {/* h1 の mb-4 を mb-2 などに調整し、p タグなどを使ってキャッチフレーズを追加しても良い */}
+        <h1>ポートフォリオ共有サービス</h1>
+      </Container>
+      {/* // Containerコンポーネントでコンテンツを中央寄せにし、パディングを適用 */}
+      <Container className="my-5 mx-auto" style={{ maxWidth: '300px' }}>
+        <h2 className="text-center mb-4">ログイン</h2>
 
-      {/* HTMLの<form>をFormコンポーネントに置き換え、onSubmitを設定 */}
-      <Form onSubmit={handleSubmit}>
+        {/* HTMLの<form>をFormコンポーネントに置き換え、onSubmitを設定 */}
+        <Form onSubmit={handleSubmit}>
 
-        {/* メールアドレス入力欄 */}
-        <Form.Group className="mb-3" controlId="formBasicEmail">
-          {/* <Form.Label>メールアドレス</Form.Label> */}
-          <Form.Control
-            type="email"
-            name="email"
-            placeholder="メールアドレスを入力"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+          {/* メールアドレス入力欄 */}
+          <Form.Group className="mb-3" controlId="formBasicEmail">
+            {/* <Form.Label>メールアドレス</Form.Label> */}
+            <Form.Control
+              type="email"
+              name="email"
+              placeholder="メールアドレスを入力"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </Form.Group>
 
-        {/* パスワード入力欄 */}
-        <Form.Group className="mb-4" controlId="formBasicPassword">
-          {/* <Form.Label>パスワード</Form.Label> */}
-          <Form.Control
-            type="password"
-            name="password"
-            placeholder="パスワードを入力"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+          {/* パスワード入力欄 */}
+          <Form.Group className="mb-4" controlId="formBasicPassword">
+            {/* <Form.Label>パスワード</Form.Label> */}
+            <Form.Control
+              type="password"
+              name="password"
+              placeholder="パスワードを入力"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </Form.Group>
 
-        {/* ログインボタン */}
-        {/* HTMLの<button>をButtonコンポーネントに置き換え、variantで色を指定 */}
-        <div className="d-grid">
-          <Button variant="primary" type="submit" size="lg">
-            ログイン
-          </Button>
-        </div>
-      </Form>
+          {/* ログインボタン */}
+          {/* HTMLの<button>をButtonコンポーネントに置き換え、variantで色を指定 */}
+          <div className="d-grid">
+            <Button variant="primary" type="submit" size="lg">
+              ログイン
+            </Button>
+          </div>
+        </Form>
 
         <p className="text-center mt-4">
           アカウントをお持ちでないですか？ <a href="/register">新規登録</a>
