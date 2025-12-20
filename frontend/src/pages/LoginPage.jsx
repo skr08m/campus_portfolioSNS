@@ -27,24 +27,43 @@ const LoginPage = () => {
   };
 
   // 2. イベントハンドラ: フォーム送信時の処理
-  const handleSubmit = (e) => {
-    e.preventDefault(); // フォームのデフォルトの送信動作（ページリロード）を防止
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    console.log('ログイン試行:', formData);
+    try {
+      // 1. ログインエンドポイントへPOSTリクエスト
+      const response = await fetch(
+        "http://localhost:8080/api/auth/login", // 👈 ログイン用のエンドポイント
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            mailAddress: formData.email, // 👈 キー名はJava側に合わせる
+            passWord: formData.password
+          })
+        }
+      );
 
-    // --- ここに実際の認証ロジックを記述します ---
+      // 2. レスポンスのチェック
+      if (!response.ok) {
+        // 401 Unauthorized などが返ってきた場合
+        throw new Error("メールアドレスまたはパスワードが正しくありません");
+      }
 
-    // 例: 簡易的な認証チェック (実際にはAPI通信を行う)
-    if (formData.email === 'test@example.com' && formData.password === 'password') {
-      // --- 修正箇所：JWTをlocalStorageに保存する ---
-      // 本来はAPIのレスポンスから取得しますが、今はダミーの値を入れます
-      localStorage.setItem("jwt", "dummy-token-for-now");
-      alert('ログイン成功！');
+      // 3. サーバーから発行された「本物のJWT」を受け取る
+      const jwt = await response.text();
 
-      // ログイン成功後、/home ページへ遷移
-      navigate('/home');
-    } else {
-      alert('メールアドレスまたはパスワードが間違っています。');
+      // 4. ブラウザの localStorage に保存（これで各画面のガードを突破できる）
+      localStorage.setItem("jwt", jwt);
+
+      alert("ログイン成功！");
+      navigate("/home");
+
+    } catch (error) {
+      console.error("Login Error:", error);
+      alert(error.message);
     }
   };
 

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Form, Button } from 'react-bootstrap';
 
-const RegisterPage = () => {
+const Register = () => {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -20,20 +20,46 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // パスワード一致チェック
+    // パスワード一致チェック（フロント側のバリデーション）
     if (formData.password !== formData.confirmPassword) {
       alert("パスワードが一致しません");
       return;
     }
 
     try {
-      // TODO: ここで API 通信 (POST /api/register)
-      console.log("新規登録データ:", formData);
+      // 1. サーバーへ送信
+      const response = await fetch(
+        "http://localhost:8080/api/auth/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            userName: formData.username,
+            mailAddress: formData.email,
+            passWord: formData.password
+          })
+        }
+      );
 
-      alert("登録が完了しました！ログインしてください。");
-      navigate("/"); // ログイン画面へ
+      // 2. レスポンスのチェック
+      if (!response.ok) {
+        throw new Error("登録に失敗しました");
+      }
+
+      // 3. サーバーから返ってきたJWT（証明書）を受け取る
+      const jwt = await response.text();
+
+      // 4. JWTを保存（これでHome画面に入れるようになる）
+      localStorage.setItem("jwt", jwt);
+
+      alert("登録が完了し、ログインしました！");
+      navigate("/home");
+
     } catch (error) {
-      alert("登録に失敗しました");
+      console.error("Error:", error);
+      alert("エラーが発生しました: " + error.message);
     }
   };
 
@@ -60,5 +86,4 @@ const RegisterPage = () => {
     </Container>
   );
 };
-
-export default RegisterPage;
+export default Register;
