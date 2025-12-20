@@ -11,7 +11,7 @@ import com.example.campus_portfolio.entity.User;
 import com.example.campus_portfolio.entity.Work;
 
 public interface UserRepository extends JpaRepository<User, Long> {
-    Optional<User> findByUserId(Long userId);  // user_idで検索するメゾッド
+    Optional<User> findById(Long userId);  // user_idで検索するメゾッド
     Optional<User> findByMailAddress(String mailAddress);  // メールアドレスでも検索可能
 
     //クエリを追加しました

@@ -38,6 +38,30 @@ public class UserService {
 
         return toResponse(user); //更新後の情報をDTOにして返す
     }
+    
+    // 自分の情報部分更新（PATCH）
+    public UserResponse patchMe(Long userId, UserUpdateRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("ユーザが存在しません"));
+
+        if (request.getUsername() != null) {
+            user.setUsername(request.getUsername());
+        }
+        if (request.getMailAddress() != null) {
+            user.setMailAddress(request.getMailAddress());
+        }
+        if (request.getSelfIntroduction() != null) {
+            user.setSelfIntroduction(request.getSelfIntroduction());
+        }
+        if (request.getProfilePhotoUrl() != null) {
+            user.setProfilePhotoUrl(request.getProfilePhotoUrl());
+        }
+
+        userRepository.save(user);
+
+        return toResponse(user);
+    }
+
 
     // ユーザ削除（管理者）
     public void deleteUser(Long userId) {

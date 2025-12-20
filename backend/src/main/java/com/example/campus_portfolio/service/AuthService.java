@@ -58,8 +58,8 @@ public class AuthService {
         if (auth == null || !auth.isAuthenticated()) {
             throw new RuntimeException("ユーザーが認証されていません");
         }
-        Jwt jwt = (Jwt) auth.getPrincipal();
-        Long userId = Long.valueOf(jwt.getSubject());
+
+        Long userId = Long.valueOf(auth.getName());
 
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("ユーザーが存在しません"));

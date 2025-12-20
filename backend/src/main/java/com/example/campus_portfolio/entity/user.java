@@ -10,6 +10,7 @@ import lombok.*;
 @Table(name = "app_user")
 @Getter
 @Setter
+@NoArgsConstructor //DB取得エラー防止のため追加 2025.12.21.AM3:39
 public class User {
 
     @Id
