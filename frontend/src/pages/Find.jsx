@@ -1,9 +1,12 @@
 // src/pages/Find.jsx
 import { useNavigate } from "react-router-dom";
 import { Container, Row, Col, Button, Form } from "react-bootstrap";
+import { useState } from "react";
 
 const Find = () => {
     const navigate = useNavigate();
+    const [keyword, setKeyword] = useState("");
+    const [selectedTags, setSelectedTags] = useState([]);
 
     return (
         <div className="d-flex" style={{ minHeight: "100vh" }}>
@@ -41,7 +44,12 @@ const Find = () => {
                 {/* 条件1 */}
                 <section className="mb-5">
                     <h5>1 ■ 条件検索</h5>
-                    <Form.Control className="mt-3" placeholder="キーワードを入力" />
+                    <Form.Control
+                        className="mt-3"
+                        placeholder="キーワードを入力"
+                        value={keyword}
+                        onChange={(e) => setKeyword(e.target.value)}
+                    />
                 </section>
 
                 {/* 条件2 */}
@@ -58,8 +66,19 @@ const Find = () => {
                         ].map((tag) => (
                             <Col xs={6} md={4} key={tag} className="text-center">
                                 <Button
-                                    variant="outline-secondary"
+                                    variant={
+                                        selectedTags.includes(tag)
+                                            ? "secondary"
+                                            : "outline-secondary"
+                                    }
                                     className="rounded-pill px-4"
+                                    onClick={() => {
+                                        setSelectedTags((prev) =>
+                                            prev.includes(tag)
+                                                ? prev.filter((t) => t !== tag)
+                                                : [...prev, tag]
+                                        );
+                                    }}
                                 >
                                     {tag}
                                 </Button>
@@ -70,7 +89,18 @@ const Find = () => {
 
                 {/* 検索 */}
                 <div className="text-end mt-5">
-                    <Button variant="secondary" className="rounded-pill px-5">
+                    <Button
+                        variant="secondary"
+                        className="rounded-pill px-5"
+                        onClick={() => {
+                            navigate("/result", {
+                                state: {
+                                    keyword,
+                                    tags: selectedTags,
+                                },
+                            });
+                        }}
+                    >
                         検索
                     </Button>
                 </div>

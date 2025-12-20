@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 //import HomePage from './pages/HomePage';
 import Home from './pages/Home';
 import Find from "./pages/Find";
+import Result from './pages/Result';
 
 function App() {
 
@@ -21,6 +22,9 @@ function App() {
 
       {/*Homeの見つけるからFindを表示*/}
       <Route path="/find" element={<Find />} />
+
+      {/* 検索結果 */}
+      <Route path="/result" element={<Result />} />
 
     </Routes>
   )

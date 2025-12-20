@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import ApiCommunication from "../api/ApiCommunication";
+import ApiCommunication from "../api/ApiCommunicationExample";
 
 const Result = () => {
     const location = useLocation();
     const { keyword, tags } = location.state || {};
+
 
     const [works, setWorks] = useState([]);
     const [loading, setLoading] = useState(true);
