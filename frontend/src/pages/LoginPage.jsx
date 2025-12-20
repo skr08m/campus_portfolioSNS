@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import { Link } from 'react-router-dom';
 
 const LoginPage = () => {
   // useStateを使用してフォームの入力値を保持
@@ -96,7 +97,7 @@ const LoginPage = () => {
         </Form>
 
         <p className="text-center mt-4">
-          アカウントをお持ちでないですか？ <a href="/register">新規登録</a>
+          アカウントをお持ちでないですか？ <Link to="/register">新規登録</Link>
         </p>
       </Container>
     </>

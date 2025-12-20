@@ -5,6 +5,7 @@ import LoginPage from './pages/LoginPage';
 import Home from './pages/Home';
 import Find from "./pages/Find";
 import Result from './pages/Result';
+import Register from './pages/Register';
 
 function App() {
 
@@ -25,6 +26,9 @@ function App() {
 
       {/* 検索結果 */}
       <Route path="/result" element={<Result />} />
+
+      {/* 新規登録 */}
+      <Route path="/register" element={<Register />} />
 
     </Routes>
   )
