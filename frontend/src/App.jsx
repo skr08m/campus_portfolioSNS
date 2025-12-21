@@ -10,6 +10,9 @@ import ConfirmWorks from "./pages/ConfirmWorks";
 import CompleteUpWorks from "./pages/CompleteUpWorks";
 import Register from './pages/Register';
 import Logout from './pages/Logout';
+import WorkDetail from './pages/WorkDetail';
+import MyAlbum from './pages/MyAlbum';
+
 
 function App() {
 
@@ -45,6 +48,15 @@ function App() {
 
       {/* ログアウト */}
       <Route path="/logout" element={<Logout />} />
+
+      {/* ★ 作品詳細画面へのルートを追加 */}
+      {/* :workId の部分は useParams で取得できる変数 */}
+      <Route path="/works/:workId" element={<WorkDetail />} />
+
+      {/* マイアルバムの表示をする画面*/}
+      <Route path="/album" element={<MyAlbum />} />
+
+
     </Routes>
   )
 }

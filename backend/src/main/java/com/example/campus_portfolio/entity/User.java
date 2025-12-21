@@ -2,7 +2,6 @@ package com.example.campus_portfolio.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +9,7 @@ import lombok.*;
 @Table(name = "app_user")
 @Getter
 @Setter
-@NoArgsConstructor //DB取得エラー防止のため追加 2025.12.21.AM3:39
+@NoArgsConstructor
 public class User {
 
     @Id
@@ -36,6 +35,7 @@ public class User {
     @Column(name = "role")
     private String role;
 
+    // --- いいねした作品リスト ---
     @ManyToMany
     @JoinTable(
         name = "user_likes_work",
@@ -43,4 +43,13 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "work_id")
     )
     private List<Work> likedWorks = new ArrayList<>();
+
+    // ★ マイアルバムに追加した作品リストを追加
+    @ManyToMany
+    @JoinTable(
+        name = "user_album_works", // アルバム専用の中間テーブル
+        joinColumns = @JoinColumn(name = "user_id"),
+        inverseJoinColumns = @JoinColumn(name = "work_id")
+    )
+    private List<Work> albumWorks = new ArrayList<>();
 }
