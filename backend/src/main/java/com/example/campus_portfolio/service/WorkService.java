@@ -59,6 +59,11 @@ public class WorkService {
         workResponse.setWorkUploadTime(String.valueOf(work.getWorkUploadTime()));
         workResponse.setWorkExtension(work.getWorkExtension());
 
+        // ★ 投稿者名をセットする処理を追加
+    if (work.getUser() != null) {
+        workResponse.setUsername(work.getUser().getUsername());
+    }
+
         // tagの追加
         List<TagResponse> tags = new ArrayList<>();
         for (Tag w : work.getTags()) {
@@ -130,6 +135,41 @@ public class WorkService {
             work.getTags().add(tag); // @ManyToMany で自動的に中間テーブルに反映
         }
         return workRepository.save(work);
+    }
+
+    // 作品検索ロジック (キーワード + タグ絞り込み)
+    public List<WorkInfoResponse> searchWorks(String keyword, List<String> tags) {
+        // 1. まず全件取得、またはキーワードで絞り込み
+        List<Work> works;
+        if (keyword != null && !keyword.isBlank()) {
+            works = workRepository.findByTitleContaining(keyword);
+        } else {
+            works = workRepository.findAll();
+        }
+
+        // 2. タグが指定されている場合、Java側でフィルタリング
+        // (JPAリポジトリを拡張してDB側でフィルタリングすることも可能ですが、
+        //  まずは確実に動くこの方法を提案します)
+        if (tags != null && !tags.isEmpty()) {
+            works = works.stream().filter(work -> {
+                // 作品が持っているタグ名リストを作成
+                List<String> workTagNames = work.getTags().stream()
+                        .map(Tag::getTagName)
+                        .toList();
+                // 指定されたタグが「すべて」含まれているかチェック (AND検索の場合)
+                return workTagNames.containsAll(tags);
+                
+                // もし「どれか1つでも含まれていればOK (OR検索)」にするなら以下を使います
+                // return tags.stream().anyMatch(workTagNames::contains);
+            }).toList();
+        }
+
+        // 3. DTOに変換して返す
+        List<WorkInfoResponse> res = new ArrayList<>();
+        for (Work w : works) {
+            res.add(convertWorkToDTO(w));
+        }
+        return res;
     }
 
     // // 作品更新（投稿者または管理者のみ）

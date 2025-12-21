@@ -21,6 +21,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/works")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 
 public class WorkController {
 
@@ -63,6 +64,20 @@ public class WorkController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, res.getContentDisposition())
                 .header(HttpHeaders.CACHE_CONTROL, "public, max-age=86400")
                 .body(res.getData());
+    }
+
+    // 作品検索 API (キーワードとタグによる絞り込み)
+    @GetMapping("/search")
+    public ResponseEntity<?> searchWorks(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) List<String> tags) { // ★List<String> でタグを受け取る
+        try {
+            // WorkService に検索ロジックを委ねる
+            List<WorkInfoResponse> response = workService.searchWorks(keyword, tags);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("エラー", e.getMessage()));
+        }
     }
 
 }

@@ -31,8 +31,8 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         try {
-            authService.register(request.getMailAddress(), request.getPassWord(), request.getUserName());
-            String jwt = authService.login(request.getMailAddress(), request.getPassWord());
+            authService.register(request.getMailAddress(), request.getPassword(), request.getUsername());
+            String jwt = authService.login(request.getMailAddress(), request.getPassword());
             return ResponseEntity.ok(jwt);
 
         } catch (RuntimeException e) {
