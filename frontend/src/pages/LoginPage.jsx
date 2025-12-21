@@ -2,24 +2,18 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Container from 'react-bootstrap/Container';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
+import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 
 const LoginPage = () => {
-  // useStateを使用してフォームの入力値を保持
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
 
-  // ログイン成功後にページ遷移を行うためのフック
   const navigate = useNavigate();
 
-  // 入力フィールド変更時の処理
   const handleChange = (e) => {
-    // e.target.name と e.target.value を使って、対応するフィールドの状態を更新
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -28,17 +22,12 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      // ログインエンドポイントへPOSTリクエスト
       const response = await fetch(
         "http://localhost:8080/api/auth/login",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          // RegisterとはJSON名が異なるため注意
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email: formData.email,
             password: formData.password
@@ -46,17 +35,12 @@ const LoginPage = () => {
         }
       );
 
-      // 401 Unauthorized などが返ってきた場合はエラーメッセージを表示
       if (!response.ok) {
         throw new Error("メールアドレスまたはパスワードが正しくありません");
       }
 
-      // サーバーから発行されたJWTを受け取る
       const jwt = await response.text();
-
-      // ブラウザのlocalStorageに保存
       localStorage.setItem("jwt", jwt);
-
       alert("ログイン成功！");
       navigate("/home");
 
@@ -67,58 +51,96 @@ const LoginPage = () => {
   };
 
   return (
-    <>
-      <Container className="text-center mt-5 mb-3">
-        {/* h1 の mb-4 を mb-2 などに調整し、p タグなどを使ってキャッチフレーズを追加しても良い */}
-        <h1>ポートフォリオ共有サービス</h1>
+    <div className="d-flex justify-content-center align-items-center min-vh-100 p-3" style={{ backgroundColor: "#f0f2f5" }}>
+      {/* 画面全体の最大幅を 1000px に拡大 */}
+      <Container style={{ maxWidth: '1000px' }}>
+        <div className="bg-white shadow-lg rounded-5 overflow-hidden">
+          <Row className="g-0 min-vh-50">
+            {/* 左側：メッセージエリア (モバイルでは非表示、または上にくる) */}
+            <Col lg={5} className="bg-dark text-white d-flex flex-column justify-content-center p-5 text-center text-lg-start">
+              <h1 className="display-3 fw-bold mb-3" style={{ letterSpacing: "-2px" }}>
+                PortFolio<br />SNS
+              </h1>
+              <p className="fs-4 opacity-75 mb-0">
+                あなたの技術と情熱を<br className="d-none d-lg-block" />一つの場所に。
+              </p>
+            </Col>
+
+            {/* 右側：フォームエリア */}
+            <Col lg={7} className="p-4 p-md-5 d-flex align-items-center">
+              <div className="w-100 px-lg-4">
+                <h2 className="fw-bold mb-2" style={{ fontSize: "2.8rem" }}>ログイン</h2>
+                <hr className="mb-5 ms-0" style={{ width: "60px", borderTop: "5px solid #000", opacity: 1 }} />
+
+                <Form onSubmit={handleSubmit}>
+                  {/* メールアドレス */}
+                  <Form.Group className="mb-4" controlId="formBasicEmail">
+                    <Form.Label className="fw-bold fs-5 text-muted mb-2">メールアドレス</Form.Label>
+                    <Form.Control
+                      type="email"
+                      name="email"
+                      placeholder="email@example.com"
+                      value={formData.email}
+                      onChange={handleChange}
+                      required
+                      style={{
+                        height: "65px",
+                        fontSize: "1.2rem",
+                        borderRadius: "15px",
+                        backgroundColor: "#f8f9fa",
+                        border: "2px solid #eee",
+                        padding: "0 20px"
+                      }}
+                    />
+                  </Form.Group>
+
+                  {/* パスワード */}
+                  <Form.Group className="mb-5" controlId="formBasicPassword">
+                    <Form.Label className="fw-bold fs-5 text-muted mb-2">パスワード</Form.Label>
+                    <Form.Control
+                      type="password"
+                      name="password"
+                      placeholder="パスワードを入力"
+                      value={formData.password}
+                      onChange={handleChange}
+                      required
+                      style={{
+                        height: "65px",
+                        fontSize: "1.2rem",
+                        borderRadius: "15px",
+                        backgroundColor: "#f8f9fa",
+                        border: "2px solid #eee",
+                        padding: "0 20px"
+                      }}
+                    />
+                  </Form.Group>
+
+                  {/* ログインボタン */}
+                  <Button
+                    variant="dark"
+                    type="submit"
+                    className="w-100 py-3 fw-bold fs-4 shadow-sm mb-4"
+                    style={{ borderRadius: "50px", height: "70px" }}
+                  >
+                    ログインする
+                  </Button>
+                </Form>
+
+                {/* 新規登録リンク（一列に収まるよう調整） */}
+                <div className="text-center mt-3">
+                  <span className="fs-5 text-muted">
+                    アカウントをお持ちでないですか？
+                    <Link to="/register" className="ms-2 text-dark fw-bold text-decoration-none border-bottom border-dark pb-1" style={{ whiteSpace: 'nowrap' }}>
+                      新規登録
+                    </Link>
+                  </span>
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </div>
       </Container>
-      {/* // Containerコンポーネントでコンテンツを中央寄せにし、パディングを適用 */}
-      <Container className="my-5 mx-auto" style={{ maxWidth: '300px' }}>
-        <h2 className="text-center mb-4">ログイン</h2>
-
-        {/* HTMLの<form>をFormコンポーネントに置き換え、onSubmitを設定 */}
-        <Form onSubmit={handleSubmit}>
-
-          {/* メールアドレス入力欄 */}
-          <Form.Group className="mb-3" controlId="formBasicEmail">
-            {/* <Form.Label>メールアドレス</Form.Label> */}
-            <Form.Control
-              type="email"
-              name="email"
-              placeholder="メールアドレスを入力"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-
-          {/* パスワード入力欄 */}
-          <Form.Group className="mb-4" controlId="formBasicPassword">
-            {/* <Form.Label>パスワード</Form.Label> */}
-            <Form.Control
-              type="password"
-              name="password"
-              placeholder="パスワードを入力"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </Form.Group>
-
-          {/* ログインボタン */}
-          {/* HTMLの<button>をButtonコンポーネントに置き換え、variantで色を指定 */}
-          <div className="d-grid">
-            <Button variant="primary" type="submit" size="lg">
-              ログイン
-            </Button>
-          </div>
-        </Form>
-
-        <p className="text-center mt-4">
-          アカウントをお持ちでないですか？ <Link to="/register">新規登録</Link>
-        </p>
-      </Container>
-    </>
+    </div>
   );
 };
 
