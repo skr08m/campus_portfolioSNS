@@ -136,6 +136,91 @@ class ApiCommunicationExample {
         // 検索結果のリストをJSONとして返す
         return await response.json();
     }
+
+    // ==================================================
+    // 作品詳細取得 API
+    // ==================================================
+    static async fetchWorkDetail(jwt, workId) {
+        const response = await fetch(
+            `http://localhost:8080/api/works/${workId}`,
+            {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${jwt}`
+                }
+            }
+        );
+
+        await this.checkResponse(response);
+        return await response.json();
+    }
+
+    // ==================================================
+    // コメント投稿 API
+    // ==================================================
+    static async addComment(jwt, workId, content) {
+        const response = await fetch(
+            `http://localhost:8080/api/works/${workId}/comments`,
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${jwt}`
+                },
+                body: JSON.stringify({
+                    content: content
+                })
+            }
+        );
+
+        await this.checkResponse(response);
+        return await response.json();
+    }
+
+    // ★ いいねを追加するメソッド
+    static async addLike(jwt, workId) {
+        const response = await fetch(`http://localhost:8080/api/works/${workId}/like`, {
+            method: "POST", // バックエンドの @PostMapping に合わせる
+            headers: {
+                "Authorization": `Bearer ${jwt}`,
+                "Content-Type": "application/json"
+            }
+        });
+        await this.checkResponse(response);
+        // バックエンドが新しいいいね数（数値）を返す想定
+        return await response.json();
+    }
+
+    // ★ マイアルバムに追加するメソッド
+    static async addToAlbum(jwt, workId) {
+        const response = await fetch(`http://localhost:8080/api/works/${workId}/album`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${jwt}`,
+                "Content-Type": "application/json"
+            }
+        });
+        await this.checkResponse(response);
+        return await response.json();
+    }
+
+    // src/api/ApiCommunicationExample.jsx 内に追加
+    static async fetchMyAlbum(jwt) {
+        const response = await fetch("http://localhost:8080/api/works/album", {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${jwt}` }
+        });
+        await this.checkResponse(response);
+        return await response.json();
+    }
+
+    static async removeFromAlbum(jwt, workId) {
+        const response = await fetch(`http://localhost:8080/api/works/${workId}/album`, {
+            method: "DELETE", // または POST で削除用のパスを叩く
+            headers: { "Authorization": `Bearer ${jwt}` }
+        });
+        await this.checkResponse(response);
+    }
 }
 
 export default ApiCommunicationExample;
