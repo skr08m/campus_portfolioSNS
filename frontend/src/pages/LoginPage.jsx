@@ -17,7 +17,7 @@ const LoginPage = () => {
   // ログイン成功後にページ遷移を行うためのフック
   const navigate = useNavigate();
 
-  // 2. イベントハンドラ: 入力フィールド変更時の処理
+  // 入力フィールド変更時の処理
   const handleChange = (e) => {
     // e.target.name と e.target.value を使って、対応するフィールドの状態を更新
     setFormData({
@@ -30,31 +30,31 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      // 1. ログインエンドポイントへPOSTリクエスト
+      // ログインエンドポイントへPOSTリクエスト
       const response = await fetch(
-        "http://localhost:8080/api/auth/login", // 👈 ログイン用のエンドポイント
+        "http://localhost:8080/api/auth/login",
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
           },
+          // RegisterとはJSON名が異なるため注意
           body: JSON.stringify({
-            email: formData.email, // 👈 キー名はJava側に合わせる
+            email: formData.email,
             password: formData.password
           })
         }
       );
 
-      // 2. レスポンスのチェック
+      // 401 Unauthorized などが返ってきた場合はエラーメッセージを表示
       if (!response.ok) {
-        // 401 Unauthorized などが返ってきた場合
         throw new Error("メールアドレスまたはパスワードが正しくありません");
       }
 
-      // 3. サーバーから発行された「本物のJWT」を受け取る
+      // サーバーから発行されたJWTを受け取る
       const jwt = await response.text();
 
-      // 4. ブラウザの localStorage に保存（これで各画面のガードを突破できる）
+      // ブラウザのlocalStorageに保存
       localStorage.setItem("jwt", jwt);
 
       alert("ログイン成功！");
