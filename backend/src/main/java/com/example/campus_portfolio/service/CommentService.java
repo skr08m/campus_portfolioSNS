@@ -38,10 +38,10 @@ public class CommentService {
                 .orElseThrow(() -> new RuntimeException("ユーザが見つかりません"));
 
         Comment comment = new Comment();
-        comment.setWorkId(work);
+        comment.setWork(work);
         comment.setUser(user);
-        comment.setCommentContent(request.getContent());
-        comment.setSentAt(ZonedDateTime.now());
+        comment.setContent(request.getContent());
+        comment.setCreatedAt(ZonedDateTime.now());
 
         Comment saved = commentRepository.save(comment);
 
@@ -85,8 +85,8 @@ public class CommentService {
                 comment.getCommentId(),
                 comment.getUser().getUserId(),
                 comment.getUser().getUsername(),
-                comment.getCommentContent(),
-                comment.getSentAt()
+                comment.getContent(),
+                comment.getCreatedAt()
         );
     }
 }
