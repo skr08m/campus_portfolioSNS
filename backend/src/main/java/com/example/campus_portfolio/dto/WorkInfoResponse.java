@@ -14,5 +14,6 @@ public class WorkInfoResponse {
     private String repositoryUrl;
     private String workUploadTime;
     private String workExtension;
+    private String username;
     private List<TagResponse> tags;
 }

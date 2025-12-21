@@ -1,4 +1,5 @@
 // src/pages/Register.jsx
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Form, Button } from 'react-bootstrap';
@@ -12,21 +13,23 @@ const Register = () => {
   });
 
   const navigate = useNavigate();
-
   const handleChange = (e) => {
+
     setFormData({ ...formData, [e.target.name]: e.target.value });
+
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     // パスワード一致チェック（フロント側のバリデーション）
+
     if (formData.password !== formData.confirmPassword) {
       alert("パスワードが一致しません");
       return;
     }
 
     try {
+
       // 1. サーバーへ送信
       const response = await fetch(
         "http://localhost:8080/api/auth/register",
@@ -36,9 +39,9 @@ const Register = () => {
             "Content-Type": "application/json"
           },
           body: JSON.stringify({
-            userName: formData.username,
-            mailAddress: formData.email,
-            passWord: formData.password
+            username: formData.username,    // Java側の private String username に合わせる
+            mailAddress: formData.email,   // Java側の private String mailAddress に合わせる
+            password: formData.password     // Java側の private String password に合わせる
           })
         }
       );
@@ -53,7 +56,6 @@ const Register = () => {
 
       // 4. JWTを保存（これでHome画面に入れるようになる）
       localStorage.setItem("jwt", jwt);
-
       alert("登録が完了し、ログインしました！");
       navigate("/home");
 
@@ -86,4 +88,5 @@ const Register = () => {
     </Container>
   );
 };
+
 export default Register;

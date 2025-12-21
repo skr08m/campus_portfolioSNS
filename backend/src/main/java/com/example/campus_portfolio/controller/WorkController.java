@@ -66,4 +66,18 @@ public class WorkController {
                 .body(res.getData());
     }
 
+    // 作品検索 API (キーワードとタグによる絞り込み)
+    @GetMapping("/search")
+    public ResponseEntity<?> searchWorks(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) List<String> tags) { // ★List<String> でタグを受け取る
+        try {
+            // WorkService に検索ロジックを委ねる
+            List<WorkInfoResponse> response = workService.searchWorks(keyword, tags);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("エラー", e.getMessage()));
+        }
+    }
+
 }

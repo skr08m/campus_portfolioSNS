@@ -101,6 +101,41 @@ class ApiCommunicationExample {
         const tags = await response.json();
         return tags;
     }
+
+    // ==================================================
+    // 作品検索 API（キーワードとタグを指定）
+    // ==================================================
+    static async searchWorks(jwt, keyword, tags) {
+        // URLの末尾に付けるパラメータ (?keyword=abc&tags=web...) を作成
+        const params = new URLSearchParams();
+
+        if (keyword) {
+            params.append("keyword", keyword);
+        }
+
+        // tagsが配列であれば、1つずつ追加
+        if (tags && tags.length > 0) {
+            tags.forEach(tag => {
+                params.append("tags", tag);
+            });
+        }
+
+        const response = await fetch(
+            `http://localhost:8080/api/works/search?${params.toString()}`,
+            {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${jwt}`
+                }
+            }
+        );
+
+        // ステータスコードを確認（共通処理を利用）
+        await this.checkResponse(response);
+
+        // 検索結果のリストをJSONとして返す
+        return await response.json();
+    }
 }
 
 export default ApiCommunicationExample;
