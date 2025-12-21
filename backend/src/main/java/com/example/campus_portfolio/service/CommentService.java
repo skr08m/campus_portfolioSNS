@@ -1,5 +1,11 @@
 package com.example.campus_portfolio.service;
 
+import java.time.ZonedDateTime;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.example.campus_portfolio.dto.CommentCreateRequestDto;
 import com.example.campus_portfolio.dto.CommentResponseDto;
 import com.example.campus_portfolio.entity.Comment;
@@ -10,11 +16,6 @@ import com.example.campus_portfolio.repository.UserRepository;
 import com.example.campus_portfolio.repository.WorkRepository;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.ZonedDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -57,7 +58,8 @@ public class CommentService {
             throw new RuntimeException("作品が見つかりません");
         }
 
-        return commentRepository.findByWorkId_WorkId(workId).stream()
+        // ★ 変更：Repositoryのメソッド名変更に合わせて findByWork_WorkId に修正
+        return commentRepository.findByWork_WorkId(workId).stream()
                 .map(this::toResponseDto)
                 .toList();
     }

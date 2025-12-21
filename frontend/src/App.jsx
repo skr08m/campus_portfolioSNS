@@ -12,6 +12,7 @@ import Register from './pages/Register';
 import Logout from './pages/Logout';
 import WorkDetail from './pages/WorkDetail';
 import MyAlbum from './pages/MyAlbum';
+import PastWork from './pages/PastWork';
 
 
 function App() {
@@ -55,6 +56,9 @@ function App() {
 
       {/* マイアルバムの表示をする画面*/}
       <Route path="/album" element={<MyAlbum />} />
+
+      {/*過去作品を表示する画面 */}
+      <Route path="/pastworks" element={<PastWork />} />
 
 
     </Routes>

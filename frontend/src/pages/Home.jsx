@@ -1,34 +1,27 @@
 // src/pages/Home.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// ファイル名に合わせてApiCommunicationExampleからApiCommunicationなど適宜変更してください
 import ApiCommunication from "../api/ApiCommunicationExample";
 import { House, Search, Upload, Images, Person, BoxArrowRight, Star } from "react-bootstrap-icons";
 
 const Home = () => {
     const navigate = useNavigate();
-    const [works, setWorks] = useState([]); // Ranking表示用の作品リスト
+    const [works, setWorks] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // 1. ローカルストレージからJWTを取得
         const jwt = localStorage.getItem("jwt");
-
-        // 2. JWTがない場合はログイン画面へ（ガード処理）
         if (!jwt) {
-            console.error("JWTが見つかりません。ログイン画面へ戻ります。");
             navigate("/");
             return;
         }
 
         const fetchHomeData = async () => {
             try {
-                // 3. ランキング用として、最新の作品一覧を取得
                 const data = await ApiCommunication.searchWorks(jwt, "", []);
                 setWorks(data);
             } catch (error) {
                 console.error("データ取得エラー:", error);
-                // 401エラーの場合はJWTが不正なのでログインへ飛ばす
                 if (error.message.includes("401")) {
                     localStorage.removeItem("jwt");
                     navigate("/");
@@ -42,96 +35,135 @@ const Home = () => {
     }, [navigate]);
 
     return (
-        <div className="d-flex vh-100 bg-light">
-            {/* サイドバー */}
-            <aside className="d-flex flex-column text-white" style={{ width: "260px", backgroundColor: "#343a40", flexShrink: 0 }}>
-                <div className="text-center py-4 border-bottom">
-                    <h4 className="fw-bold">PortFolio SNS</h4>
-                    <div className="mx-auto mt-3 rounded-circle bg-secondary" style={{ width: "100px", height: "100px" }} />
+        <div className="d-flex w-100 m-0 p-0" style={{ minHeight: "100vh", backgroundColor: "#fff" }}>
+
+            {/* サイドバー: 左端に完全固定 */}
+            <aside className="d-none d-md-block shadow-sm" style={{
+                width: "240px",
+                backgroundColor: "#e0e0e0",
+                position: "fixed",
+                left: 0,
+                top: 0,
+                height: "100vh",
+                zIndex: 1000
+            }}>
+                <div className="text-center py-4">
+                    <h4 style={{ borderBottom: "1px solid #000", display: "inline-block", paddingBottom: "5px" }}>PortFolio</h4>
+                    <div className="mx-auto" style={{ width: "120px", height: "120px", borderRadius: "50%", backgroundColor: "white", margin: "20px 0" }} />
                 </div>
-                <ul className="list-group list-group-flush mt-3">
-                    {/* ホーム：現在地なので active */}
-                    <li className="list-group-item bg-dark text-white border-0 active" style={{ cursor: "pointer" }} onClick={() => navigate("/home")}>
-                        <House className="me-2" /> ホーム
+
+                <ul className="list-group list-group-flush mt-2 px-3">
+                    <li className="list-group-item border-0 py-4 fw-bold active text-dark" style={{ backgroundColor: "#d0d0d0", borderRadius: "10px", cursor: "pointer" }} onClick={() => navigate("/home")}>
+                        <House className="me-3" size={24} /> ホーム
                     </li>
-                    <li className="list-group-item bg-dark text-white border-0" style={{ cursor: "pointer" }} onClick={() => navigate("/find")}>
-                        <Search className="me-2" /> 見つける
+                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/find")}>
+                        <Search className="me-3" size={24} /> 見つける
                     </li>
-                    <li className="list-group-item bg-dark text-white border-0" style={{ cursor: "pointer" }} onClick={() => navigate("/upworks")}>
-                        <Upload className="me-2" /> 作品投稿
+                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/upworks")}>
+                        <Upload className="me-3" size={24} /> 作品投稿
                     </li>
-                    <li className="list-group-item bg-dark text-white border-0">
-                        <Images className="me-2" /> 過去作品
+                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/pastworks")}>
+                        <Images className="me-3" size={24} /> 過去作品
                     </li>
-                    {/* ★ 追加項目：マイアルバム */}
-                    <li className="list-group-item bg-dark text-white border-0" style={{ cursor: "pointer" }} onClick={() => navigate("/album")}>
-                        <Star className="me-2" color="#f1c40f" /> マイアルバム
+                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/album")}>
+                        <Star className="me-3" size={24} color="#f1c40f" /> マイアルバム
                     </li>
-                    <li className="list-group-item bg-dark text-white border-0">
-                        <Person className="me-2" /> マイプロフィール
+                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }}>
+                        <Person className="me-3" size={24} /> プロフィール
                     </li>
                 </ul>
-                <div className="mt-auto p-3">
-                    <button className="btn btn-outline-danger w-100" onClick={() => { localStorage.removeItem("jwt"); navigate("/"); }}>
+
+                <div className="position-absolute bottom-0 w-100 p-3 mb-3">
+                    <button className="btn btn-outline-danger w-100 border-2 py-2 fw-bold" onClick={() => { localStorage.removeItem("jwt"); navigate("/"); }}>
                         <BoxArrowRight className="me-2" /> ログアウト
                     </button>
                 </div>
             </aside>
 
             {/* メインコンテンツ */}
-            <main className="flex-grow-1 p-4 overflow-auto">
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h2 className="fw-bold">🔥 Ranking</h2>
-                    <span className="text-muted">最新の投稿を表示中</span>
+            <main className="flex-grow-1" style={{
+                marginLeft: "240px",
+                padding: "60px 40px",
+                width: "calc(100% - 240px)",
+                minWidth: 0
+            }}>
+
+                <style>{`
+                    @media (max-width: 767px) {
+                        main { margin-left: 0 !important; width: 100% !important; padding: 20px !important; }
+                    }
+                    .work-card {
+                        border-radius: 15px; overflow: hidden; transition: all 0.3s ease;
+                        background: #f8f9fa; border: 2px solid #eee;
+                    }
+                    .work-card:hover {
+                        transform: translateY(-10px);
+                        box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important;
+                        border-color: #333;
+                    }
+                    .image-container {
+                        width: 100%; aspect-ratio: 1 / 1; background-color: #f0f0f0;
+                        display: flex; align-items: center; justify-content: center;
+                    }
+                    .empty-card {
+                        border-radius: 15px; border: 2px dashed #ddd;
+                        background: #fafafa; aspect-ratio: 1 / 1;
+                    }
+                `}</style>
+
+                {/* タイトルセクション: 位置合わせ修正済み */}
+                <div className="mb-5 text-start">
+                    <h1 className="m-0 p-0" style={{ fontSize: "3.5rem", fontWeight: "bold", lineHeight: "1.2" }}>🔥 Ranking</h1>
+                    <hr className="mx-0" style={{ width: "100%", maxWidth: "600px", borderTop: "5px solid #000", opacity: 1, marginTop: "10px" }} />
+                    <p className="text-muted fs-5 mt-3">最新の注目作品をチェックしましょう</p>
                 </div>
 
-                <div className="row g-4">
+                {/* 作品グリッド */}
+                <div className="row g-4 g-md-5">
                     {loading ? (
-                        /* ローディング中のプレースホルダー */
-                        [...Array(6)].map((_, index) => (
-                            <div className="col-md-4" key={index}>
-                                <div className="card shadow-sm">
-                                    <div className="bg-secondary" style={{ height: "140px" }} />
-                                    <div className="card-body">
-                                        <p className="placeholder-glow"><span className="placeholder col-6"></span></p>
-                                    </div>
+                        [...Array(6)].map((_, i) => (
+                            <div className="col-12 col-md-6 col-xl-4" key={i}>
+                                <div className="placeholder-glow">
+                                    <div className="placeholder w-100" style={{ aspectRatio: "1/1", borderRadius: "15px" }} />
                                 </div>
                             </div>
                         ))
                     ) : (
-                        /* 実際の作品データ表示 */
                         works.map((item) => (
-                            <div className="col-md-4" key={item.id}>
-                                <div
-                                    className="card shadow-sm h-100 card-hover"
-                                    style={{ cursor: "pointer" }}
-                                    onClick={() => navigate(`/works/${item.id}`)}
-                                >
-                                    <div className="bg-light d-flex align-items-center justify-content-center overflow-hidden" style={{ height: "140px", backgroundColor: "#e9ecef" }}>
-                                        {/* プレビュー画像表示 */}
+                            <div className="col-12 col-md-6 col-xl-4" key={item.id}>
+                                <div className="work-card shadow-sm h-100" onClick={() => navigate(`/works/${item.id}`)} style={{ cursor: "pointer" }}>
+                                    <div className="image-container">
                                         <img
                                             src={`http://localhost:8080/api/works/${item.id}/file`}
                                             alt={item.title}
                                             style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                             onError={(e) => {
                                                 e.target.style.display = 'none';
-                                                e.target.parentElement.innerHTML = '<span class="text-muted">No Image</span>';
+                                                e.target.parentElement.innerHTML = '<span class="text-muted fs-3">No Image</span>';
                                             }}
                                         />
                                     </div>
-                                    <div className="card-body">
-                                        <h6 className="card-title fw-bold text-truncate">{item.title}</h6>
-                                        <p className="text-muted small mb-1">投稿者: {item.username}</p>
-                                        <p className="text-muted small text-truncate">{item.explanation}</p>
+                                    <div className="p-4 bg-white d-flex justify-content-between align-items-center border-top">
+                                        <div className="text-truncate" style={{ maxWidth: "85%" }}>
+                                            <span className="fw-bold fs-3 d-block text-truncate">{item.title}</span>
+                                            <small className="text-muted">@{item.username}</small>
+                                        </div>
+                                        <div style={{ width: "15px", height: "15px", borderRadius: "50%", backgroundColor: "#000" }} />
                                     </div>
                                 </div>
                             </div>
                         ))
                     )}
-                    {!loading && works.length === 0 && (
-                        <div className="col-12 text-center mt-5">
-                            <p className="text-muted">まだ投稿された作品がありません。</p>
-                        </div>
+
+                    {/* グリッドを埋める空カード */}
+                    {!loading && works.length < 6 && (
+                        [...Array(6 - works.length)].map((_, i) => (
+                            <div className="col-12 col-md-6 col-xl-4" key={`empty-${i}`}>
+                                <div className="empty-card d-flex align-items-center justify-content-center">
+                                    <span className="text-muted fw-bold">No Data</span>
+                                </div>
+                            </div>
+                        ))
                     )}
                 </div>
             </main>

@@ -1,19 +1,29 @@
 package com.example.campus_portfolio.controller;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.example.campus_portfolio.dto.WorkCreateRequest;
 import com.example.campus_portfolio.dto.WorkFileHttpResponse;
 import com.example.campus_portfolio.dto.WorkInfoResponse;
 import com.example.campus_portfolio.entity.User;
 import com.example.campus_portfolio.service.AuthService;
 import com.example.campus_portfolio.service.WorkService;
-import java.util.List;
-import java.util.Map;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/works")
@@ -72,6 +82,18 @@ public class WorkController {
         }
     }
 
+    // ★重要：詳細取得（/{workId}）よりも上に書く
+@GetMapping("/me")
+public ResponseEntity<?> getMyWorks() {
+    try {
+        User user = authService.getCurrentUser();
+        List<WorkInfoResponse> response = workService.getMyWorks(user);
+        return ResponseEntity.ok(response);
+    } catch (Exception e) {
+        return ResponseEntity.badRequest().body(Map.of("エラー", e.getMessage()));
+    }
+}
+
     // 作品データ(画像等)取得
     @GetMapping("/{workId}/file")
     public ResponseEntity<byte[]> getWorkFile(@PathVariable Long workId) {
@@ -95,20 +117,7 @@ public class WorkController {
         }
     }
 
-    // コメント投稿 API
-    @PostMapping("/{workId}/comments")
-    public ResponseEntity<?> addComment(
-            @PathVariable Long workId,
-            @RequestBody Map<String, String> requestBody) {
-        try {
-            User user = authService.getCurrentUser();
-            String content = requestBody.get("content");
-            workService.addComment(user, workId, content);
-            return ResponseEntity.ok(Map.of("message", "コメントを投稿しました"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("エラー", e.getMessage()));
-        }
-    }
+    
 
     // いいね更新
     @PostMapping("/{workId}/like")

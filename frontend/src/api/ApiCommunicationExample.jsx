@@ -221,6 +221,15 @@ class ApiCommunicationExample {
         });
         await this.checkResponse(response);
     }
+
+    static async fetchMyWorks(jwt) {
+        const response = await fetch("http://localhost:8080/api/works/me", {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${jwt}` }
+        });
+        await this.checkResponse(response);
+        return await response.json();
+    }
 }
 
 export default ApiCommunicationExample;
