@@ -68,7 +68,7 @@ const Home = () => {
                     <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/album")}>
                         <Star className="me-3" size={24} color="#f1c40f" /> マイアルバム
                     </li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }}>
+                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/myprofile")}>
                         <Person className="me-3" size={24} /> プロフィール
                     </li>
                 </ul>

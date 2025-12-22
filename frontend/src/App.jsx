@@ -13,6 +13,7 @@ import Logout from './pages/Logout';
 import WorkDetail from './pages/WorkDetail';
 import MyAlbum from './pages/MyAlbum';
 import PastWork from './pages/PastWork';
+import MyProfile from './pages/MyProfile';
 
 
 function App() {
@@ -60,7 +61,8 @@ function App() {
       {/*過去作品を表示する画面 */}
       <Route path="/pastworks" element={<PastWork />} />
 
-
+      {/* マイプロフィール画面 */}
+      <Route path="/myprofile" element={<MyProfile />} />
     </Routes>
   )
 }
