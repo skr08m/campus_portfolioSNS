@@ -43,21 +43,63 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // 1. バリデーション
     if (formData.password !== formData.confirmPassword) {
       alert("パスワードが一致しません");
       return;
     }
-    
-    // TODO: 実際のAPI送信処理（FormDataを使用）
-    console.log({ ...formData, iconFile, selectedTags });
-    alert("登録処理へ進みます（実装中）");
+
+    try {
+      // 2. FormDataの作成（画像を送るための特殊な形式）
+      const data = new FormData();
+      data.append("userName", formData.username);
+      data.append("mailAddress", formData.email);
+      data.append("passWord", formData.password);
+      data.append("selfIntroduction", formData.bio);
+      // 画像があれば追加
+      if (iconFile) {
+        data.append("profilePhotoUrl", iconFile);
+      }
+      data.append("role", selectedTags.join(","));
+
+      // タグをカンマ区切り文字列として送信（Java側で受け取りやすい形）
+      data.append("tags", selectedTags.join(","));
+
+      // 3. サーバーへ送信
+      const response = await fetch(
+        "http://localhost:8080/api/auth/register",
+        {
+          method: "POST",
+          // ⚠️ 注意: Content-Typeヘッダーは明示的に指定しないでください。
+          // FormDataを使用すると、ブラウザが自動的に boundary を含む multipart/form-data を設定します。
+          body: data,
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "登録に失敗しました。入力内容を確認してください。");
+      }
+
+      // 4. JWTの受け取りと保存
+      const jwt = await response.text();
+      localStorage.setItem("jwt", jwt);
+
+      alert("登録が完了しました！");
+      navigate("/home");
+
+    } catch (error) {
+      console.error("Registration Error:", error);
+      alert(error.message);
+    }
   };
 
   return (
     <Container className="mt-4 mx-auto" style={{ maxWidth: '600px' }}>
       <h2 className="text-center fw-bold mb-4">新規登録</h2>
       <Form onSubmit={handleSubmit}>
-        
+
         {/* アイコン画像選択（UpWorksのドラッグ＆ドロップを応用） */}
         <section className="mb-4 text-start">
           <Form.Label className="fw-bold">■ プロフィールアイコン</Form.Label>
@@ -77,8 +119,8 @@ const Register = () => {
             }}
             onClick={() => document.getElementById('iconInput').click()}
           >
-            {iconFile ? 
-              <span className="text-success">✔ {iconFile.name}</span> : 
+            {iconFile ?
+              <span className="text-success">✔ {iconFile.name}</span> :
               <span className="text-muted">画像をドラッグ＆ドロップ または クリック</span>
             }
           </div>
@@ -145,7 +187,7 @@ const Register = () => {
 
         {/* ボタン類 */}
         <div className="d-grid gap-2 mb-5">
-          <Button variant="success" type="submit" size="lg" className="rounded-pill">
+          <Button variant="dark" type="submit" size="lg" className="rounded-pill">
             この内容で登録する
           </Button>
           <Button variant="link" className="text-muted" onClick={() => navigate('/')}>
