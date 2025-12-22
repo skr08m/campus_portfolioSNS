@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ApiCommunication from "../api/ApiCommunicationExample";
 import { House, Search, Upload, Images, Person, BoxArrowRight, Star } from "react-bootstrap-icons";
+import Sidebar from "../components/Sidebar";
 
 const Home = () => {
     const navigate = useNavigate();
@@ -37,55 +38,7 @@ const Home = () => {
     return (
         <div className="d-flex w-100 m-0 p-0" style={{ minHeight: "100vh", backgroundColor: "#fff" }}>
 
-            {/* サイドバー: 左端に完全固定 */}
-            <aside className="d-none d-md-block shadow-sm" style={{
-                width: "240px",
-                backgroundColor: "#e0e0e0",
-                position: "fixed",
-                left: 0,
-                top: 0,
-                height: "100vh",
-                zIndex: 1000,
-                overflowY: "auto",      /* 縦方向にはみ出たらスクロールを出す */
-                overflowX: "hidden",    /* 横方向はナシ */
-                display: "flex",        // Flexboxを導入
-                flexDirection: "column" // 縦に並べる
-            }}>
-                {/* 上部：ロゴとプロフィール画像 */}
-                <div className="text-center py-4">
-                    <h4 style={{ borderBottom: "1px solid #000", display: "inline-block", paddingBottom: "5px" }}>PortFolio</h4>
-                    <div className="mx-auto" style={{ width: "120px", height: "120px", borderRadius: "50%", backgroundColor: "white", margin: "20px 0" }} />
-                </div>
-
-                {/* 中部：メニューリスト（ここが伸びる） */}
-                <ul className="list-group list-group-flush px-3 flex-grow-1"> {/* flex-grow-1 で余白を埋める */}
-                    <li className="list-group-item border-0 py-4 fw-bold active text-dark" style={{ backgroundColor: "#d0d0d0", borderRadius: "10px", cursor: "pointer" }} onClick={() => navigate("/home")}>
-                        <House className="me-3" size={24} /> ホーム
-                    </li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/find")}>
-                        <Search className="me-3" size={24} /> 見つける
-                    </li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/upworks")}>
-                        <Upload className="me-3" size={24} /> 作品投稿
-                    </li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/pastworks")}>
-                        <Images className="me-3" size={24} /> 過去作品
-                    </li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/album")}>
-                        <Star className="me-3" size={24} color="#f1c40f" /> マイアルバム
-                    </li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/myprofile")}>
-                        <Person className="me-3" size={24} /> プロフィール
-                    </li>
-                </ul>
-
-                {/* 下部：ログアウトボタン（重ならないように配置） */}
-                <div className="p-3 mb-3 border-top mt-auto" style={{ backgroundColor: "#e0e0e0" }}> {/* mt-auto で最下部へ、ただし重ならない */}
-                    <button className="btn btn-outline-danger w-100 border-2 py-2 fw-bold" onClick={() => { localStorage.removeItem("jwt"); navigate("/"); }}>
-                        <BoxArrowRight className="me-2" /> ログアウト
-                    </button>
-                </div>
-            </aside>
+            <Sidebar />
 
             {/* メインコンテンツ */}
             <main className="flex-grow-1" style={{
