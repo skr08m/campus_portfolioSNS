@@ -1,9 +1,9 @@
-// src/pages/LoginPage.jsx
-
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+// ★ react-toastify のインポート
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -41,22 +41,44 @@ const LoginPage = () => {
 
       const jwt = await response.text();
       localStorage.setItem("jwt", jwt);
-      alert("ログイン成功！");
-      navigate("/home");
+
+      // ★ 成功トーストを表示
+      toast.success("🚀 ログインに成功しました！", {
+        position: "top-center",
+        autoClose: 1500,
+        hideProgressBar: true,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark", // デザインに合わせてダークテーマ
+      });
+
+      // トーストを見せるために少しだけ遅延させて遷移
+      setTimeout(() => {
+        navigate("/home");
+      }, 1500);
 
     } catch (error) {
       console.error("Login Error:", error);
-      alert(error.message);
+      // ★ エラーをトーストで表示
+      toast.error(error.message, {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "colored",
+      });
     }
   };
 
   return (
     <div className="d-flex justify-content-center align-items-center min-vh-100 p-3" style={{ backgroundColor: "#f0f2f5" }}>
-      {/* 画面全体の最大幅を 1000px に拡大 */}
+
+      {/* ★ トーストの表示位置を制御するコンテナ */}
+      <ToastContainer />
+
       <Container style={{ maxWidth: '1000px' }}>
         <div className="bg-white shadow-lg rounded-5 overflow-hidden">
           <Row className="g-0 min-vh-50">
-            {/* 左側：メッセージエリア (モバイルでは非表示、または上にくる) */}
+            {/* 左側：メッセージエリア */}
             <Col lg={5} className="bg-dark text-white d-flex flex-column justify-content-center p-5 text-center text-lg-start">
               <h1 className="display-3 fw-bold mb-3" style={{ letterSpacing: "-2px" }}>
                 PortFolio<br />SNS
@@ -126,7 +148,7 @@ const LoginPage = () => {
                   </Button>
                 </Form>
 
-                {/* 新規登録リンク（一列に収まるよう調整） */}
+                {/* 新規登録リンク */}
                 <div className="text-center mt-3">
                   <span className="fs-5 text-muted">
                     アカウントをお持ちでないですか？
