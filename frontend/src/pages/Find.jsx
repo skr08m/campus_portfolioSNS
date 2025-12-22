@@ -1,14 +1,17 @@
 // src/pages/Find.jsx
 import { useNavigate } from "react-router-dom";
-import { Row, Col, Button, Form } from "react-bootstrap";
+import { Row, Col, Button, Form, Alert } from "react-bootstrap";
 import { useState } from "react";
-import { House, Search, Upload, Images, Person, BoxArrowRight, Star, X } from "react-bootstrap-icons";
+import { X } from "react-bootstrap-icons";
 import Sidebar from "../components/Sidebar";
 
 const Find = () => {
     const navigate = useNavigate();
     const [keyword, setKeyword] = useState("");
     const [selectedTags, setSelectedTags] = useState([]);
+
+    // 警告表示の状態管理
+    const [showAlert, setShowAlert] = useState(false);
 
     // 他の画面と共通のカテゴリーリスト
     const categoryList = ["webアプリ", "ゲーム", "CG", "IoT", "メタ", "音楽", "VR", "AI", "3Dモデル"];
@@ -17,6 +20,24 @@ const Find = () => {
         setSelectedTags((prev) =>
             prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
         );
+        // 条件が選択されたら警告を消す
+        if (showAlert) setShowAlert(false);
+    };
+
+    // 検索実行ボタンの処理
+    const handleSearch = () => {
+        // キーワードが空（空白除く）かつ、タグも未選択の場合
+        if (keyword.trim() === "" && selectedTags.length === 0) {
+            setShowAlert(true);
+            // 3秒後に自動で閉じる設定（任意）
+            setTimeout(() => setShowAlert(false), 3000);
+            return;
+        }
+
+        // 条件がある場合は結果画面へ
+        navigate("/result", {
+            state: { keyword, tags: selectedTags },
+        });
     };
 
     return (
@@ -29,7 +50,8 @@ const Find = () => {
                 marginLeft: "240px",
                 padding: "60px 40px",
                 width: "calc(100% - 240px)",
-                minWidth: 0
+                minWidth: 0,
+                position: "relative"
             }}>
 
                 <style>{`
@@ -41,6 +63,7 @@ const Find = () => {
                         background-color: #ffffff; border: 1px solid #ddd; border-radius: 50%; 
                         padding: 8px; display: flex; align-items: center; justify-content: center;
                         box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s ease;
+                        cursor: pointer;
                     }
                     .fixed-close-btn:hover { transform: scale(1.1); background-color: #f8f9fa; }
                     
@@ -59,7 +82,32 @@ const Find = () => {
                         font-size: 1.3rem; padding: 20px; border: 2px solid #eee;
                         color: #000;
                     }
+                    /* アラートを画面上部に浮かせるスタイル */
+                    .floating-alert {
+                        position: fixed;
+                        top: 20px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        z-index: 3000;
+                        min-width: 350px;
+                        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                        border-radius: 15px;
+                        text-align: center;
+                        font-weight: bold;
+                    }
                 `}</style>
+
+                {/* 条件未入力時のBootstrap Alert */}
+                {showAlert && (
+                    <Alert
+                        variant="danger"
+                        className="floating-alert"
+                        onClose={() => setShowAlert(false)}
+                        dismissible
+                    >
+                        検索条件が入力されていません
+                    </Alert>
+                )}
 
                 {/* 右上固定 ×ボタン */}
                 <button className="fixed-close-btn" onClick={() => navigate("/home")} title="閉じる">
@@ -83,7 +131,10 @@ const Find = () => {
                                     className="search-input shadow-sm w-100"
                                     placeholder="キーワードを入力"
                                     value={keyword}
-                                    onChange={(e) => setKeyword(e.target.value)}
+                                    onChange={(e) => {
+                                        setKeyword(e.target.value);
+                                        if (showAlert) setShowAlert(false); // 入力し始めたら警告を消す
+                                    }}
                                 />
                             </section>
 
@@ -111,11 +162,7 @@ const Find = () => {
                                     className="shadow px-5 py-3 fw-bold fs-2"
                                     variant="dark"
                                     style={{ borderRadius: "50px", minWidth: "350px" }}
-                                    onClick={() => {
-                                        navigate("/result", {
-                                            state: { keyword, tags: selectedTags },
-                                        });
-                                    }}
+                                    onClick={handleSearch}
                                 >
                                     検索
                                 </Button>
