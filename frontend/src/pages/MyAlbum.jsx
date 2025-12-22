@@ -1,52 +1,38 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ApiCommunication from "../api/ApiCommunicationExample";
-import { House, Search, Upload, Images, Person, BoxArrowRight, Star, X } from "react-bootstrap-icons";
+import Sidebar from "../components/Sidebar";
+import { X } from "react-bootstrap-icons";
+import { Modal, Button } from "react-bootstrap";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-// ★ 認証付き画像表示コンポーネント
+// --- 認証付き画像表示コンポーネント (省略なし) ---
 const AlbumImage = ({ workId }) => {
     const [imageUrl, setImageUrl] = useState(null);
     const [error, setError] = useState(false);
-
     useEffect(() => {
         let isMounted = true;
         const jwt = localStorage.getItem("jwt");
-
         const fetchImage = async () => {
             try {
                 const res = await fetch(`http://localhost:8080/api/works/${workId}/file`, {
                     headers: { "Authorization": `Bearer ${jwt}` }
                 });
                 if (!res.ok) throw new Error();
-
                 const blob = await res.blob();
-                if (blob.size === 0) throw new Error();
-
                 const objectUrl = URL.createObjectURL(blob);
                 if (isMounted) setImageUrl(objectUrl);
             } catch (err) {
                 if (isMounted) setError(true);
             }
         };
-
         fetchImage();
-        return () => {
-            isMounted = false;
-            if (imageUrl) URL.revokeObjectURL(imageUrl);
-        };
+        return () => { isMounted = false; if (imageUrl) URL.revokeObjectURL(imageUrl); };
     }, [workId]);
-
     if (error) return <span className="text-muted fw-bold">No Image</span>;
     if (!imageUrl) return <div className="spinner-border spinner-border-sm text-secondary" role="status"></div>;
-
-    return (
-        <img
-            src={imageUrl}
-            alt="Work"
-            className="card-img-top" // Bootstrapのクラスを適用
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-        />
-    );
+    return <img src={imageUrl} alt="Work" className="card-img-top" style={{ width: "100%", height: "100%", objectFit: "cover" }} />;
 };
 
 const MyAlbum = () => {
@@ -54,57 +40,48 @@ const MyAlbum = () => {
     const [albumWorks, setAlbumWorks] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // モーダル管理用のステート
+    const [showModal, setShowModal] = useState(false);
+    const [selectedWorkId, setSelectedWorkId] = useState(null);
+
     useEffect(() => {
         const jwt = localStorage.getItem("jwt");
-        if (!jwt) {
-            navigate("/");
-            return;
-        }
-
+        if (!jwt) { navigate("/"); return; }
         const fetchAlbum = async () => {
             try {
                 const data = await ApiCommunication.fetchMyAlbum(jwt);
                 setAlbumWorks(data);
             } catch (error) {
                 console.error("アルバム取得エラー:", error);
-                if (error.message.includes("401")) navigate("/");
-            } finally {
-                setLoading(false);
-            }
+            } finally { setLoading(false); }
         };
-
         fetchAlbum();
     }, [navigate]);
 
-    // const handleRemove = async (e, workId) => {
-    //     e.stopPropagation();
-    //     if (!window.confirm("アルバムから削除しますか？")) return;
-    //     try {
-    //         const jwt = localStorage.getItem("jwt");
-    //         await ApiCommunication.removeFromAlbum(jwt, workId);
-    //         setAlbumWorks(albumWorks.filter(w => w.id !== workId));
-    //     } catch (error) {
-    //         alert("削除に失敗しました");
-    //     }
-    // };
+    // 削除ボタンが押された時（モーダルを開く）
+    const handleShowModal = (e, workId) => {
+        e.stopPropagation(); // 詳細画面への遷移を防ぐ
+        setSelectedWorkId(workId);
+        setShowModal(true);
+    };
 
-    const handleRemove = async (e, workId) => {
-        e.stopPropagation();
-        if (!window.confirm("アルバムから削除しますか？")) return;
-
+    // ★ モーダル内で「削除」が確定した時
+    const handleConfirmDelete = async () => {
         try {
             const jwt = localStorage.getItem("jwt");
+            await ApiCommunication.removeFromAlbum(jwt, selectedWorkId);
+            setAlbumWorks(prev => prev.filter(w => w.id !== selectedWorkId));
 
-            // 1. 通信が終わるのを待つ（await）
-            await ApiCommunication.removeFromAlbum(jwt, workId);
+            setShowModal(false);
 
-            // 2. 通信が成功したら画面（State）を更新する
-            setAlbumWorks(prev => prev.filter(w => w.id !== workId));
-
-            alert("アルバムから削除しました");
+            toast.success("🗑️ アルバムから削除しました", {
+                position: "top-center",
+                autoClose: 2000,
+                hideProgressBar: true,
+                theme: "dark",
+            });
         } catch (error) {
-            console.error("削除エラー:", error);
-            alert("データベースの削除に失敗しました。Java側に削除処理が実装されているか確認してください。");
+            toast.error("削除に失敗しました。");
         }
     };
 
@@ -112,75 +89,37 @@ const MyAlbum = () => {
 
     return (
         <div className="d-flex w-100 m-0 p-0" style={{ minHeight: "100vh", backgroundColor: "#fff" }}>
+            <ToastContainer />
+            <Sidebar />
 
-            {/* サイドバー */}
-            <aside className="d-none d-md-block shadow-sm" style={{
-                width: "240px", backgroundColor: "#e0e0e0", position: "fixed",
-                left: 0, top: 0, height: "100vh", zIndex: 1000
-            }}>
-                <div className="text-center py-4">
-                    <h4 style={{ borderBottom: "1px solid #000", display: "inline-block", paddingBottom: "5px" }}>PortFolio</h4>
-                    <div className="mx-auto" style={{ width: "120px", height: "120px", borderRadius: "50%", backgroundColor: "white", margin: "20px 0" }} />
-                </div>
-                <ul className="list-group list-group-flush mt-2 px-3">
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/home")}><House className="me-3" size={24} /> ホーム</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/find")}><Search className="me-3" size={24} /> 見つける</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/upworks")}><Upload className="me-3" size={24} /> 作品投稿</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/pastworks")}><Images className="me-3" size={24} /> 過去作品</li>
-                    <li className="list-group-item border-0 py-4 fw-bold active text-dark" style={{ backgroundColor: "#d0d0d0", borderRadius: "10px" }}>
-                        <Star className="me-3" size={24} color="#f1c40f" /> マイアルバム
-                    </li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }}><Person className="me-3" size={24} /> プロフィール</li>
-                </ul>
-            </aside>
+            {/* 削除確認モーダル */}
+            <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+                <Modal.Header closeButton className="border-0">
+                    <Modal.Title className="fw-bold">Comfirm</Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="text-center fs-5 py-4">
+                    この作品をアルバムから削除しますか？
+                </Modal.Body>
+                <Modal.Footer className="border-0">
+                    <Button variant="secondary" onClick={() => setShowModal(false)} className="px-4" style={{ borderRadius: "10px" }}>
+                        キャンセル
+                    </Button>
+                    <Button variant="danger" onClick={handleConfirmDelete} className="px-4" style={{ borderRadius: "10px" }}>
+                        削除する
+                    </Button>
+                </Modal.Footer>
+            </Modal>
 
-            {/* メインコンテンツ */}
-            <main className="flex-grow-1" style={{
-                marginLeft: "240px", padding: "60px 40px", width: "calc(100% - 240px)", minWidth: 0
-            }}>
+            <main className="flex-grow-1" style={{ marginLeft: "240px", padding: "60px 40px", width: "calc(100% - 240px)", minWidth: 0 }}>
                 <style>{`
-                    @media (max-width: 767px) {
-                        main { margin-left: 0 !important; width: 100% !important; padding: 20px !important; }
-                    }
-                    .fixed-close-btn { position: fixed; top: 25px; right: 30px; z-index: 2001; background-color: #ffffff; border: 1px solid #ddd; border-radius: 50%; padding: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s ease; }
-                    
-                    /* カードのカスタマイズ */
-                    .custom-card {
-                        border: 2px solid #eee;
-                        border-radius: 20px;
-                        overflow: hidden;
-                        transition: all 0.3s ease;
-                        background-color: #fff;
-                        position: relative;
-                        height: 100%;
-                    }
-                    .custom-card:hover {
-                        transform: translateY(-10px);
-                        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-                        border-color: #333;
-                    }
-                    .card-img-container {
-                        width: 100%;
-                        aspect-ratio: 1 / 1;
-                        background-color: #f8f9fa;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        overflow: hidden;
-                        border-bottom: 1px solid #eee;
-                    }
-                    .remove-btn-overlay {
-                        position: absolute; top: 15px; right: 15px; z-index: 10;
-                        background: rgba(255,255,255,0.9); border: none; border-radius: 50%;
-                        width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: 0.2s;
-                    }
+                    @media (max-width: 767px) { main { margin-left: 0 !important; width: 100% !important; padding: 20px !important; } }
+                    .fixed-close-btn { position: fixed; top: 25px; right: 30px; z-index: 2001; background-color: #ffffff; border: 1px solid #ddd; border-radius: 50%; padding: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s ease; cursor: pointer; }
+                    .custom-card { border: 2px solid #eee; border-radius: 20px; overflow: hidden; transition: all 0.3s ease; background-color: #fff; position: relative; height: 100%; }
+                    .custom-card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(0,0,0,0.15); border-color: #333; }
+                    .card-img-container { width: 100%; aspect-ratio: 1 / 1; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 1px solid #eee; }
+                    .remove-btn-overlay { position: absolute; top: 15px; right: 15px; z-index: 10; background: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2); transition: 0.2s; }
                     .remove-btn-overlay:hover { background: #ff4d4d; color: white; }
-                    .empty-card {
-                        border-radius: 20px; border: 2px dashed #ddd;
-                        background: #fafafa; aspect-ratio: 1 / 1;
-                        display: flex; align-items: center; justify-content: center;
-                    }
+                    .empty-card { border-radius: 20px; border: 2px dashed #ddd; background: #fafafa; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; }
                 `}</style>
 
                 <button className="fixed-close-btn" onClick={() => navigate("/home")}><X size={40} color="#000000" /></button>
@@ -195,9 +134,7 @@ const MyAlbum = () => {
                         {loading ? (
                             [...Array(6)].map((_, i) => (
                                 <div className="col-12 col-md-6 col-xl-4" key={i}>
-                                    <div className="card custom-card placeholder-glow">
-                                        <div className="placeholder w-100" style={{ aspectRatio: "1/1" }} />
-                                    </div>
+                                    <div className="card custom-card placeholder-glow"><div className="placeholder w-100" style={{ aspectRatio: "1/1" }} /></div>
                                 </div>
                             ))
                         ) : (
@@ -205,7 +142,7 @@ const MyAlbum = () => {
                                 {albumWorks.map((work) => (
                                     <div className="col-12 col-md-6 col-xl-4" key={work.id}>
                                         <div className="card custom-card shadow-sm" onClick={() => navigate(`/works/${work.id}`)} style={{ cursor: "pointer" }}>
-                                            <button className="remove-btn-overlay" onClick={(e) => handleRemove(e, work.id)}>
+                                            <button className="remove-btn-overlay" onClick={(e) => handleShowModal(e, work.id)}>
                                                 <X size={24} />
                                             </button>
                                             <div className="card-img-container">
@@ -221,13 +158,10 @@ const MyAlbum = () => {
                                         </div>
                                     </div>
                                 ))}
-
                                 {albumWorks.length < MIN_CARDS && (
                                     [...Array(MIN_CARDS - albumWorks.length)].map((_, i) => (
                                         <div className="col-12 col-md-6 col-xl-4" key={`empty-${i}`}>
-                                            <div className="empty-card shadow-sm">
-                                                <span className="text-muted fw-bold fs-4">Empty Slot</span>
-                                            </div>
+                                            <div className="empty-card shadow-sm"><span className="text-muted fw-bold fs-4">Empty Slot</span></div>
                                         </div>
                                     ))
                                 )}
