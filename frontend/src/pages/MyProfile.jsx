@@ -1,67 +1,137 @@
-import { useEffect, useState } from 'react';
-import { Container, Card, Image, Badge, Button } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Badge, Spinner, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { X } from 'react-bootstrap-icons'; // react-bootstrap-iconsを使用
 
 const MyProfile = () => {
-  const [profile, setProfile] = useState(null);
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // 1. サーバーから自分のプロフィールを取得する
     const fetchProfile = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/user/me", {
+        const jwt = localStorage.getItem("jwt");
+        if (!jwt) throw new Error("ログインが必要です");
+
+        const res = await fetch("http://localhost:8080/api/users/me", {
+          method: "GET",
           headers: {
-            "Authorization": `Bearer ${localStorage.getItem("jwt")}`
+            "Authorization": `Bearer ${jwt}`,
+            "Content-Type": "application/json"
           }
         });
-        if (!response.ok) throw new Error("取得失敗");
-        const data = await response.json();
-        setProfile(data);
-      } catch (error) {
-        console.error(error);
+
+        if (!res.ok) {
+          if (res.status === 401) throw new Error("認証期限が切れました。再ログインしてください。");
+          throw new Error("プロフィールの取得に失敗しました");
+        }
+
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchProfile();
   }, []);
 
-  if (!profile) return <div>読み込み中...</div>;
+  if (loading) return (
+    <Container className="text-center" style={{ marginTop: "100px" }}>
+      <Spinner animation="border" variant="primary" />
+      <p className="mt-3 text-muted">読み込み中...</p>
+    </Container>
+  );
+
+  if (error) return (
+    <Container className="mt-5">
+      <Alert variant="danger">{error}</Alert>
+    </Container>
+  );
 
   return (
-    <Container className="mt-5" style={{ maxWidth: '600px' }}>
-      <Card className="text-center p-4 shadow-sm">
-        <div className="mx-auto mb-3">
-          {/* アイコン画像の表示。保存パスに合わせてURLを調整 */}
-          <Image 
-            src={profile.iconPath ? `http://localhost:8080/uploads/${profile.iconPath}` : "/default-icon.png"} 
-            roundedCircle 
-            style={{ width: '120px', height: '120px', objectFit: 'cover' }}
-            border="2px solid #ddd"
-          />
-        </div>
-        <Card.Body>
-          <Card.Title className="fs-3 fw-bold">{profile.userName}</Card.Title>
-          <Card.Text className="text-muted mb-4">
-            {profile.bio || "自己紹介が設定されていません。"}
-          </Card.Text>
+    <>
+      <style>{`
+        .fixed-close-btn {
+          position: fixed; top: 25px; right: 30px; z-index: 2001;
+          background-color: #ffffff; border: 1px solid #ddd; border-radius: 50%; 
+          padding: 8px; display: flex; align-items: center; justify-content: center;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s ease;
+          cursor: pointer;
+        }
+        .fixed-close-btn:hover { transform: scale(1.1); background-color: #f8f9fa; }
+      `}</style>
 
-          <div className="mb-4">
-            <h6 className="fw-bold text-start">興味のある分野：</h6>
-            <div className="d-flex flex-wrap gap-2">
-              {profile.tags && profile.tags.map(tag => (
-                <Badge key={tag} pill bg="primary" className="px-3 py-2">
-                  {tag}
-                </Badge>
-              ))}
-            </div>
-          </div>
+      {/* 右上固定 ×ボタン */}
+      <button className="fixed-close-btn" onClick={() => navigate("/home")} title="閉じる">
+        <X size={40} color="#000000" />
+      </button>
 
-          <Button variant="outline-dark" onClick={() => navigate('/edit-profile')}>
-            プロフィールを編集する
-          </Button>
-        </Card.Body>
-      </Card>
-    </Container>
+      {/* デモ用にmaxWidthを広げつつ中央寄せ */}
+      <Container className="py-5" style={{ maxWidth: '1000px' }}>
+        <Card className="shadow-sm border-0 overflow-hidden" style={{ borderRadius: '20px' }}>
+          
+          {/* ヘッダー背景（装飾用） */}
+          <div style={{ height: '160px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}></div>
+          
+          <Card.Body className="px-5 pb-5">
+            <Row className="align-items-end" style={{ marginTop: '-80px' }}>
+              <Col xs="auto">
+                <div 
+                  className="rounded-circle border border-4 border-white shadow-sm d-flex align-items-center justify-content-center bg-white"
+                  style={{ width: '150px', height: '150px', fontSize: '4rem' }}
+                >
+                  👤
+                </div>
+              </Col>
+              <Col className="pb-2">
+                <h2 className="fw-bold m-0" style={{ fontSize: '2.5rem' }}>{user.username}</h2>
+                <p className="text-muted m-0 fs-5">@{user.username}</p>
+              </Col>
+            </Row>
+
+            <hr className="my-5" />
+
+            {/* 自己紹介セクション */}
+            <section className="mb-5">
+              <h4 className="fw-bold mb-4" style={{ color: '#2d3748' }}>■ 自己紹介</h4>
+              <div className="p-4 bg-light rounded-4" style={{ minHeight: '120px' }}>
+                <p className="mb-0 text-secondary fs-5" style={{ whiteSpace: 'pre-wrap', lineHeight: '1.7' }}>
+                  {user.selfIntroduction || "自己紹介はまだ設定されていません。"}
+                </p>
+              </div>
+            </section>
+
+            {/* カテゴリー（タグ）セクション */}
+            <section>
+              <h4 className="fw-bold mb-4" style={{ color: '#2d3748' }}>■ 興味のあるカテゴリー</h4>
+              <div className="d-flex flex-wrap gap-3">
+                {user.favoriteTags && user.favoriteTags.length > 0 ? (
+                  user.favoriteTags.map((tagName, index) => (
+                    <Badge 
+                      key={index} 
+                      pill 
+                      bg="white" 
+                      text="dark" 
+                      className="border shadow-sm px-4 py-3"
+                      style={{ fontSize: '1.1rem', fontWeight: '500' }}
+                    >
+                      #{tagName}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-muted">タグが選択されていません</span>
+                )}
+              </div>
+            </section>
+          </Card.Body>
+        </Card>
+      </Container>
+    </>
   );
 };
 
