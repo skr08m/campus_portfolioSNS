@@ -214,9 +214,17 @@ class ApiCommunicationExample {
         return await response.json();
     }
 
+    // static async removeFromAlbum(jwt, workId) {
+    //     const response = await fetch(`http://localhost:8080/api/works/${workId}/album`, {
+    //         method: "DELETE", // または POST で削除用のパスを叩く
+    //         headers: { "Authorization": `Bearer ${jwt}` }
+    //     });
+    //     await this.checkResponse(response);
+    // }
+
     static async removeFromAlbum(jwt, workId) {
         const response = await fetch(`http://localhost:8080/api/works/${workId}/album`, {
-            method: "DELETE", // または POST で削除用のパスを叩く
+            method: "POST", // DELETE ではなく POST に変更してみる
             headers: { "Authorization": `Bearer ${jwt}` }
         });
         await this.checkResponse(response);
