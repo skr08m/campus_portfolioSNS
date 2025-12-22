@@ -10,5 +10,5 @@ public class CampusPortfolioApplication {
 		SpringApplication.run(CampusPortfolioApplication.class, args);
 		System.out.println("server is running!");
 	}
-
+	
 }

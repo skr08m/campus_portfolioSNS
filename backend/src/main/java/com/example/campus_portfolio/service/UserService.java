@@ -100,6 +100,7 @@ public class UserService {
 
     // Entity → DTO変換
     private UserResponse toResponse(User user) {
+        List<String> tags = getFavoriteTags(user.getUserId()); //★よく使うタグを追加しました
         return new UserResponse(
                 user.getUserId(),
                 user.getUsername(),
@@ -107,7 +108,8 @@ public class UserService {
                 user.getSelfIntroduction(),
                 user.getProfilePhotoUrl(),
                 user.getRole(),
-                "********"
+                "********",
+                tags //★よく使うタグを追加しました
         );
     }
 }

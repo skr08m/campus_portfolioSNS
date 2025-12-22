@@ -15,4 +15,5 @@ public class UserResponse {
     private String profilePhotoUrl; //プロフィール
     private String role; //ロール
     private String passwordPlaceholder; //パスワード（ただしサービス層ではダミー文字列で返す予定）
+    private java.util.List<String> favoriteTags; //★よく使うタグを追加しました
 }
