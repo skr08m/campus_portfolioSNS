@@ -20,16 +20,28 @@ const Register = () => {
   const [selectedTags, setSelectedTags] = useState([]);
   const [dragOver, setDragOver] = useState(false);
 
-  const tagList = ["Java", "React", "Python", "Design", "AWS", "IoT"];
+  // 1. タグリストをオブジェクト形式で定義（DBのIDと合わせる）
+  const tagList = [
+    { tagId: 1, tagName: "IoT" },
+    { tagId: 2, tagName: "メタ" },
+    { tagId: 3, tagName: "音楽" },
+    { tagId: 4, tagName: "VR" },
+    { tagId: 5, tagName: "Webアプリ" },
+    { tagId: 6, tagName: "ゲーム" },
+    { tagId: 7, tagName: "AI" },
+    { tagId: 8, tagName: "3Dモデル" }
+  ];
 
   // ハンドラー系
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const toggleTag = (tag) => {
+  const toggleTag = (tagObj) => {
     setSelectedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+      prev.find(t => t.tagId === tagObj.tagId)
+        ? prev.filter((t) => t.tagId !== tagObj.tagId) // IDで比較して削除
+        : [...prev, tagObj]                            // 追加
     );
   };
 
@@ -44,49 +56,49 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. バリデーション
-    if (formData.password !== formData.confirmPassword) {
-      alert("パスワードが一致しません");
-      return;
-    }
-
     try {
-      // 2. FormDataの作成（画像を送るための特殊な形式）
-      const data = new FormData();
-      data.append("userName", formData.username);
-      data.append("mailAddress", formData.email);
-      data.append("passWord", formData.password);
-      data.append("selfIntroduction", formData.bio);
-      // 画像があれば追加
-      if (iconFile) {
-        data.append("profilePhotoUrl", iconFile);
-      }
-      data.append("role", selectedTags.join(","));
+      // --- STEP 1: アカウント作成 (POST) ---
+      const regRes = await fetch("http://localhost:8080/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: formData.username,    // 全て小文字 (n)
+          mailAddress: formData.email,   // そのまま
+          password: formData.password    // 全て小文字 (w)
+        }),
+      });
 
-      // タグをカンマ区切り文字列として送信（Java側で受け取りやすい形）
-      data.append("tags", selectedTags.join(","));
-
-      // 3. サーバーへ送信
-      const response = await fetch(
-        "http://localhost:8080/api/auth/register",
-        {
-          method: "POST",
-          // ⚠️ 注意: Content-Typeヘッダーは明示的に指定しないでください。
-          // FormDataを使用すると、ブラウザが自動的に boundary を含む multipart/form-data を設定します。
-          body: data,
-        }
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "登録に失敗しました。入力内容を確認してください。");
-      }
-
-      // 4. JWTの受け取りと保存
-      const jwt = await response.text();
+      if (!regRes.ok) throw new Error("アカウント登録に失敗しました");
+      const jwt = await regRes.text();
       localStorage.setItem("jwt", jwt);
 
-      alert("登録が完了しました！");
+      // --- STEP 2: 自己紹介文の保存 (PATCH) ---
+      const introRes = await fetch("http://localhost:8080/api/users/me", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${jwt}`
+        },
+        body: JSON.stringify({ selfIntroduction: formData.bio }),
+      });
+      if (!introRes.ok) throw new Error("自己紹介の保存に失敗しました");
+
+      // --- STEP 3: よく使うタグの保存 (POST) ---
+      // エンドポイント: /api/users/me/favorite-tags
+      const selectedTagIds = selectedTags.map(tag => tag.tagId);
+
+      const tagRes = await fetch("http://localhost:8080/api/users/me/favorite-tags", {
+        method: "PUT", // @PutMapping なので PUT を指定
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${jwt}`
+        },
+        body: JSON.stringify(selectedTagIds), // [1, 2] のような数値配列を送信
+      });
+      if (!tagRes.ok) throw new Error("タグの保存に失敗しました");
+
+      // 全て成功！
+      alert("新規登録とプロフィールの設定が完了しました！");
       navigate("/home");
 
     } catch (error) {
@@ -100,7 +112,7 @@ const Register = () => {
       <h2 className="text-center fw-bold mb-4">新規登録</h2>
       <Form onSubmit={handleSubmit}>
 
-        {/* アイコン画像選択（UpWorksのドラッグ＆ドロップを応用） */}
+        {/* アイコン画像選択 */}
         <section className="mb-4 text-start">
           <Form.Label className="fw-bold">■ プロフィールアイコン</Form.Label>
           <div
@@ -156,7 +168,7 @@ const Register = () => {
           </Form.Group>
         </Row>
 
-        {/* 自己紹介（UpWorksの詳細を応用） */}
+        {/* 自己紹介 */}
         <Form.Group className="mb-4 text-start">
           <Form.Label className="fw-bold">■ 自己紹介</Form.Label>
           <Form.Control
@@ -169,19 +181,33 @@ const Register = () => {
         </Form.Group>
 
         {/* タグ選択（UpWorksのカテゴリを応用） */}
+        {/* カテゴリー選択セクション */}
         <section className="mb-5 text-start">
-          <Form.Label className="fw-bold">■ 興味のあるタグ</Form.Label>
-          <div className="d-flex flex-wrap gap-2 mt-2">
-            {tagList.map((tag) => (
-              <Button
-                key={tag}
-                variant={selectedTags.includes(tag) ? "primary" : "outline-primary"}
-                className="rounded-pill px-3"
-                onClick={() => toggleTag(tag)}
-              >
-                {tag}
-              </Button>
-            ))}
+          <h4 className="fw-bold mb-3 m-0 p-0" style={{ fontSize: "1.6rem" }}>■ カテゴリー</h4>
+          <div className="d-flex flex-wrap gap-4 mt-2 p-0">
+            {tagList.map((tag) => {
+              // 現在選択されているか判定（IDで比較）
+              const isActive = selectedTags.some(t => t.tagId === tag.tagId);
+
+              return (
+                <button
+                  key={tag.tagId}
+                  type="button"
+                  // selectedTagsの中にこのタグのIDがあれば 'active' クラスを付与
+                  className={`category-btn shadow-sm ${isActive ? "active" : ""}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setSelectedTags((prev) =>
+                      prev.some((t) => t.tagId === tag.tagId)
+                        ? prev.filter((t) => t.tagId !== tag.tagId) // すでにあれば削除
+                        : [...prev, tag]                           // なければ追加
+                    );
+                  }}
+                >
+                  {tag.tagName}
+                </button>
+              );
+            })}
           </div>
         </section>
 
