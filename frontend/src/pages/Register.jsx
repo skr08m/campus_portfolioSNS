@@ -147,23 +147,23 @@ const Register = () => {
         {/* 基本入力欄 */}
         <Row className="mb-3">
           <Form.Group as={Col} className="text-start">
-            <Form.Label className="fw-bold">ユーザー名</Form.Label>
+            <Form.Label className="fw-bold">■ ユーザー名</Form.Label>
             <Form.Control name="username" onChange={handleChange} required />
           </Form.Group>
         </Row>
 
         <Form.Group className="mb-3 text-start">
-          <Form.Label className="fw-bold">メールアドレス</Form.Label>
+          <Form.Label className="fw-bold">■ メールアドレス</Form.Label>
           <Form.Control type="email" name="email" onChange={handleChange} required />
         </Form.Group>
 
         <Row className="mb-3">
           <Form.Group as={Col} className="text-start">
-            <Form.Label className="fw-bold">パスワード</Form.Label>
+            <Form.Label className="fw-bold">■ パスワード</Form.Label>
             <Form.Control type="password" name="password" onChange={handleChange} required />
           </Form.Group>
           <Form.Group as={Col} className="text-start">
-            <Form.Label className="fw-bold">（確認用）</Form.Label>
+            <Form.Label className="fw-bold">■（確認用）</Form.Label>
             <Form.Control type="password" name="confirmPassword" onChange={handleChange} required />
           </Form.Group>
         </Row>
@@ -183,7 +183,7 @@ const Register = () => {
         {/* タグ選択（UpWorksのカテゴリを応用） */}
         {/* カテゴリー選択セクション */}
         <section className="mb-5 text-start">
-          <h4 className="fw-bold mb-3 m-0 p-0" style={{ fontSize: "1.6rem" }}>■ カテゴリー</h4>
+          <Form.Label className="fw-bold">■ カテゴリー</Form.Label>
           <div className="d-flex flex-wrap gap-4 mt-2 p-0">
             {tagList.map((tag) => {
               // 現在選択されているか判定（IDで比較）
