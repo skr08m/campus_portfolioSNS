@@ -242,6 +242,18 @@ class ApiCommunicationExample {
         await this.checkResponse(response);
         return await response.json();
     }
+
+    static async removeLike(jwt, workId) {
+        const response = await fetch(`http://localhost:8080/api/works/${workId}/unlike`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${jwt}`,
+                "Content-Type": "application/json"
+            }
+        });
+        await this.checkResponse(response);
+        return await response.json(); // 新しいカウントを返す
+    }
 }
 
 export default ApiCommunicationExample;
