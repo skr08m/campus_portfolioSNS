@@ -113,7 +113,7 @@ const Home = () => {
 
                 {/* タイトルセクション: 位置合わせ修正済み */}
                 <div className="mb-5 text-start">
-                    <h1 className="m-0 p-0" style={{ fontSize: "3.5rem", fontWeight: "bold", lineHeight: "1.2" }}>🔥 Ranking</h1>
+                    <h1 className="m-0 p-0" style={{ fontSize: "3.5rem", fontWeight: "bold", lineHeight: "1.2" }}>✨ New Arrivals</h1>
                     <hr className="mx-0" style={{ width: "100%", maxWidth: "600px", borderTop: "5px solid #000", opacity: 1, marginTop: "10px" }} />
                     <p className="text-muted fs-5 mt-3">最新の注目作品をチェックしましょう</p>
                 </div>
