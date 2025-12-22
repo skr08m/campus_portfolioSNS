@@ -18,16 +18,16 @@ const Sidebar = () => {
 
   return (
     <aside className="d-none d-md-block shadow-sm" style={{
-        width: "240px",
-        backgroundColor: "#e0e0e0",
-        position: "fixed",
-        left: 0,
-        top: 0,
-        height: "100vh",
-        zIndex: 1000,
-        overflowY: "auto",
-        display: "flex",
-        flexDirection: "column"
+      width: "240px",
+      backgroundColor: "#e0e0e0",
+      position: "fixed",
+      left: 0,
+      top: 0,
+      height: "100vh",
+      zIndex: 1000,
+      overflowY: "auto",
+      display: "flex",
+      flexDirection: "column"
     }}>
       {/* 上部：ロゴ */}
       <div className="text-center py-4">
@@ -43,12 +43,13 @@ const Sidebar = () => {
             <li
               key={item.path}
               className={`list-group-item border-0 py-4 ${isActive ? "fw-bold text-dark" : "bg-transparent"}`}
-              style={{ 
-                backgroundColor: isActive ? "#d0d0d0" : "transparent", 
-                borderRadius: "10px", 
+              style={{
+                backgroundColor: isActive ? "#d0d0d0" : "transparent",
+                borderRadius: "10px",
                 cursor: "pointer",
                 display: "flex",
-                alignItems: "center"
+                alignItems: "center",
+                justifyContent: "center"//中央揃え
               }}
               onClick={() => navigate(item.path)}
             >
@@ -61,8 +62,8 @@ const Sidebar = () => {
 
       {/* 下部：ログアウト */}
       <div className="p-3 mb-3 border-top mt-auto">
-        <button 
-          className="btn btn-outline-danger w-100 border-2 py-2 fw-bold" 
+        <button
+          className="btn btn-outline-danger w-100 border-2 py-2 fw-bold"
           onClick={() => { localStorage.removeItem("jwt"); navigate("/"); }}
         >
           <BoxArrowRight className="me-2" /> ログアウト
