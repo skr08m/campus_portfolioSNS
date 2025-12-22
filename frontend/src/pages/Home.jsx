@@ -45,14 +45,20 @@ const Home = () => {
                 left: 0,
                 top: 0,
                 height: "100vh",
-                zIndex: 1000
+                zIndex: 1000,
+                overflowY: "auto",      /* 縦方向にはみ出たらスクロールを出す */
+                overflowX: "hidden",    /* 横方向はナシ */
+                display: "flex",        // Flexboxを導入
+                flexDirection: "column" // 縦に並べる
             }}>
+                {/* 上部：ロゴとプロフィール画像 */}
                 <div className="text-center py-4">
                     <h4 style={{ borderBottom: "1px solid #000", display: "inline-block", paddingBottom: "5px" }}>PortFolio</h4>
                     <div className="mx-auto" style={{ width: "120px", height: "120px", borderRadius: "50%", backgroundColor: "white", margin: "20px 0" }} />
                 </div>
 
-                <ul className="list-group list-group-flush mt-2 px-3">
+                {/* 中部：メニューリスト（ここが伸びる） */}
+                <ul className="list-group list-group-flush px-3 flex-grow-1"> {/* flex-grow-1 で余白を埋める */}
                     <li className="list-group-item border-0 py-4 fw-bold active text-dark" style={{ backgroundColor: "#d0d0d0", borderRadius: "10px", cursor: "pointer" }} onClick={() => navigate("/home")}>
                         <House className="me-3" size={24} /> ホーム
                     </li>
@@ -73,7 +79,8 @@ const Home = () => {
                     </li>
                 </ul>
 
-                <div className="position-absolute bottom-0 w-100 p-3 mb-3">
+                {/* 下部：ログアウトボタン（重ならないように配置） */}
+                <div className="p-3 mb-3 border-top mt-auto" style={{ backgroundColor: "#e0e0e0" }}> {/* mt-auto で最下部へ、ただし重ならない */}
                     <button className="btn btn-outline-danger w-100 border-2 py-2 fw-bold" onClick={() => { localStorage.removeItem("jwt"); navigate("/"); }}>
                         <BoxArrowRight className="me-2" /> ログアウト
                     </button>
