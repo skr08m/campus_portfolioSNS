@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import ApiCommunication from "../api/ApiCommunicationExample";
-import { Badge } from "react-bootstrap";
-import { X, Star, ChatRightText, HeartFill, SendFill } from "react-bootstrap-icons";
+import { Badge, Button } from "react-bootstrap";
+import { House, Search, Upload, Images, Person, BoxArrowRight, Star, X, ChatRightText, HeartFill, SendFill } from "react-bootstrap-icons";
 
 const WorkDetail = () => {
     const { workId } = useParams();
@@ -24,12 +24,10 @@ const WorkDetail = () => {
 
         const fetchDetail = async () => {
             try {
-                // 1. 作品の詳細情報を取得
                 const result = await ApiCommunication.fetchWorkDetail(jwt, workId);
                 setWork(result);
                 setLikes(result.likesCount || 0);
 
-                // 2. 認証付きで画像データを取得
                 const imageRes = await fetch(`http://localhost:8080/api/works/${workId}/file`, {
                     headers: { "Authorization": `Bearer ${jwt}` }
                 });
@@ -52,6 +50,8 @@ const WorkDetail = () => {
         };
     }, [workId, navigate]);
 
+    // --- ハンドラー関数 ---
+
     const handleLike = async () => {
         try {
             const jwt = localStorage.getItem("jwt");
@@ -68,6 +68,7 @@ const WorkDetail = () => {
             await ApiCommunication.addToAlbum(jwt, workId);
             alert("マイアルバムに追加しました！");
         } catch (err) {
+            console.error("アルバム追加失敗:", err);
             alert("既に追加されているか、失敗しました");
         }
     };
@@ -80,151 +81,222 @@ const WorkDetail = () => {
             setCommentText("");
             window.location.reload();
         } catch (err) {
+            console.error("コメント送信失敗:", err);
             alert("コメント送信に失敗しました");
         }
     };
 
-    if (loading) return <p className="text-center mt-5">読み込み中...</p>;
-    if (!work) return <p className="text-center mt-5">作品が見つかりません</p>;
+    // ローディング画面 (巨大プログレスバー)
+    if (loading) {
+        return (
+            <div className="d-flex flex-column justify-content-center align-items-center vh-100 bg-white p-5">
+                <div style={{ width: "100%", maxWidth: "800px" }}>
+                    <h2 className="text-center mb-4 fw-bold" style={{ fontSize: "2.5rem", color: "#333" }}>作品を読み込み中...</h2>
+                    <div className="progress shadow-sm" role="progressbar" style={{ height: "60px", borderRadius: "30px", backgroundColor: "#eee" }}>
+                        <div className="progress-bar progress-bar-striped progress-bar-animated bg-dark" style={{ width: "100%", fontSize: "1.8rem", fontWeight: "bold" }}>
+                            Loading...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (!work) return <p className="text-center mt-5 fs-3">作品が見つかりません</p>;
 
     return (
-        <div className="d-flex w-100" style={{ minHeight: "100vh", backgroundColor: "#fff" }}>
+        <div className="d-flex w-100 m-0 p-0" style={{ minHeight: "100vh", backgroundColor: "#fff" }}>
+
             {/* サイドバー */}
-            <aside className="d-none d-md-block" style={{ width: "240px", backgroundColor: "#e0e0e0", position: "fixed", height: "100vh", zIndex: 1000 }}>
+            <aside className="d-none d-md-block shadow-sm" style={{
+                width: "240px", backgroundColor: "#e0e0e0", position: "fixed",
+                left: 0, top: 0, height: "100vh", zIndex: 1000
+            }}>
                 <div className="text-center py-4">
                     <h4 style={{ borderBottom: "1px solid #000", display: "inline-block", paddingBottom: "5px" }}>PortFolio</h4>
-                    <div style={{ width: "120px", height: "120px", borderRadius: "50%", backgroundColor: "white", margin: "20px auto" }} />
+                    <div className="mx-auto" style={{ width: "120px", height: "120px", borderRadius: "50%", backgroundColor: "white", margin: "20px 0" }} />
                 </div>
+                <ul className="list-group list-group-flush mt-2 px-3">
+                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/home")}><House className="me-3" size={24} /> ホーム</li>
+                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/find")}><Search className="me-3" size={24} /> 見つける</li>
+                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/upworks")}><Upload className="me-3" size={24} /> 作品投稿</li>
+                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/pastworks")}><Images className="me-3" size={24} /> 過去作品</li>
+                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/album")}><Star className="me-3" size={24} color="#f1c40f" /> マイアルバム</li>
+                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }}><Person className="me-3" size={24} /> プロフィール</li>
+                </ul>
             </aside>
 
             {/* メインコンテンツ */}
-            <main className="flex-grow-1" style={{ marginLeft: "240px", padding: "40px", width: "calc(100% - 240px)" }}>
+            <main className="flex-grow-1" style={{
+                marginLeft: "240px", padding: "60px 40px 60px 20px", width: "calc(100% - 240px)", minWidth: 0
+            }}>
 
-                {/* カスタムCSS */}
                 <style>{`
                     @media (max-width: 767px) {
                         main { margin-left: 0 !important; width: 100% !important; padding: 20px !important; }
                     }
                     .fixed-close-btn {
-                        position: fixed; 
-                        top: 25px; 
-                        right: 30px; 
-                        z-index: 2001;
-                        background-color: #ffffff; /* 白背景 */
-                        border: 1px solid #ddd;
-                        border-radius: 50%; 
-                        padding: 8px;
+                        position: fixed; top: 25px; right: 30px; z-index: 2001;
+                        background-color: #ffffff; border: 1px solid #ddd; border-radius: 50%; 
+                        padding: 8px; display: flex; align-items: center; justify-content: center;
+                        box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s ease;
+                    }
+                    .fixed-close-btn:hover { transform: scale(1.1); background-color: #f8f9fa; }
+                    
+                    .detail-card {
+                        background-color: #f2f2f2; padding: 50px; border-radius: 25px; 
+                        width: 100%; margin-top: 40px; border: 1px solid #eee;
+                    }
+                    .info-display-box {
+                        background-color: #fff; border: 2px solid #ddd; border-radius: 15px;
+                        padding: 30px; font-size: 1.4rem; color: #000; min-height: 180px;
+                        line-height: 1.6; text-align: left;
+                    }
+
+                    /* アクションボタン共通スタイル */
+                    .action-item {
+                        cursor: pointer;
+                        transition: all 0.2s ease-in-out;
                         display: flex;
+                        flex-direction: column;
                         align-items: center;
-                        justify-content: center;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* 影をつけて浮き立たせる */
-                        transition: transform 0.2s ease;
+                        text-align: center;
+                        position: relative;
                     }
-                    .fixed-close-btn:hover {
-                        transform: scale(1.1);
-                        background-color: #f8f9fa;
+                    .action-item:hover {
+                        transform: translateY(-8px) scale(1.1);
                     }
-                    .action-btn:hover { opacity: 0.7; transition: 0.2s; }
+                    .action-label {
+                        font-weight: bold;
+                        margin-top: 10px;
+                        font-size: 0.9rem;
+                        color: #333;
+                    }
+                    /* いいね数バッジ */
+                    .like-count-badge {
+                        position: absolute;
+                        top: -8px;
+                        right: -12px;
+                        background-color: #e91e63;
+                        color: white;
+                        border-radius: 20px;
+                        padding: 2px 10px;
+                        font-size: 0.9rem;
+                        font-weight: bold;
+                        box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+                        border: 2px solid white;
+                    }
                 `}</style>
 
-                {/* 右上固定 ×ボタン（黒色に修正） */}
-                <button
-                    className="fixed-close-btn"
-                    onClick={() => showComments ? setShowComments(false) : navigate(-1)}
-                    title="閉じる"
-                >
-                    <X size={40} color="#000000" /> {/* 黒色指定 */}
+                {/* 右上固定 ×ボタン */}
+                <button className="fixed-close-btn" onClick={() => showComments ? setShowComments(false) : navigate(-1)} title="閉じる">
+                    <X size={40} color="#000000" />
                 </button>
 
-                <div className="mb-4">
-                    <h1 style={{ fontSize: "2.5rem", fontWeight: "bold" }}>{work.title}</h1>
-                    <hr style={{ width: "100%", maxWidth: "450px", borderTop: "2px solid #000", opacity: 1 }} />
+                {/* タイトルセクション */}
+                <div className="mb-5 text-start p-0">
+                    <h1 className="m-0 p-0" style={{ fontSize: "3.5rem", fontWeight: "bold", lineHeight: "1.2" }}>{work.title}</h1>
+                    <hr className="ms-0" style={{ width: "100%", maxWidth: "800px", borderTop: "5px solid #000", opacity: 1, marginTop: "10px" }} />
                 </div>
 
                 {/* プレビューエリア */}
-                <div className="mb-5 shadow-sm overflow-hidden d-flex align-items-center justify-content-center"
-                    style={{ width: "100%", aspectRatio: "21 / 9", backgroundColor: "#aaddff", borderRadius: "8px" }}>
-                    {previewUrl ? (
-                        <img src={previewUrl} alt="Work Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                    ) : (
-                        <span className="text-muted" style={{ fontSize: "1.5rem" }}>No Preview</span>
-                    )}
-                </div>
-
-                {/* 下部カードエリア */}
-                <div style={{ backgroundColor: "#f2f2f2", padding: "35px", borderRadius: "15px", minHeight: "450px" }}>
-                    {!showComments ? (
-                        <div className="animate__animated animate__fadeIn">
-                            <div className="mb-4 p-4 bg-white border shadow-sm text-center" style={{ borderRadius: "10px" }}>
-                                <p className="mb-0" style={{ fontSize: "1.2rem", color: "#333" }}>{work.explanation}</p>
-                            </div>
-
-                            <div className="d-flex flex-wrap justify-content-between align-items-center mt-5">
-                                <div className="d-flex gap-2">
-                                    {work.tags?.map(t => (
-                                        <Badge key={t.tagId} pill bg="secondary" className="px-3 py-2 text-dark" style={{ backgroundColor: "#d1d1d1", fontSize: "0.9rem" }}>
-                                            {t.tagName}
-                                        </Badge>
-                                    ))}
-                                </div>
-
-                                <div className="d-flex gap-4 align-items-center">
-                                    <div className="text-center action-btn" onClick={handleAddAlbum} style={{ cursor: "pointer" }}>
-                                        <Star size={42} color="#f1c40f" />
-                                        <div style={{ fontSize: "0.75rem", marginTop: "5px", fontWeight: "bold" }}>マイアルバム</div>
-                                    </div>
-                                    <div className="text-center action-btn" onClick={() => setShowComments(true)} style={{ cursor: "pointer" }}>
-                                        <ChatRightText size={42} color="#333" />
-                                        <div style={{ fontSize: "0.75rem", marginTop: "5px", fontWeight: "bold" }}>コメント</div>
-                                    </div>
-                                    <div className="d-flex align-items-center p-2 px-4 rounded-pill shadow-sm action-btn"
-                                        style={{ backgroundColor: "#ffb6c1", cursor: "pointer" }} onClick={handleLike}>
-                                        <HeartFill size={26} color="#e91e63" className="me-2" />
-                                        <span className="fw-bold" style={{ fontSize: "1.2rem" }}>{likes}</span>
-                                        <div className="ms-2" style={{ fontSize: "0.75rem", fontWeight: "bold" }}>いいね</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="mt-5 p-3 border-start border-4 border-dark bg-white shadow-sm">
-                                <small className="text-muted" style={{ fontSize: "0.9rem" }}>
-                                    <strong>投稿者:</strong> {work.username || "Unknown"}
-                                </small>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="d-flex flex-column h-100 animate__animated animate__fadeIn">
-                            <h3 className="border-bottom border-2 border-dark pb-2 mb-4">Comments</h3>
-                            <div className="flex-grow-1 overflow-auto my-2" style={{ maxHeight: "450px", paddingRight: "10px" }}>
-                                {work.comments?.length > 0 ? (
-                                    work.comments.map((c, i) => (
-                                        <div key={i} className="mb-4">
-                                            <div className="bg-white p-3 shadow-sm" style={{ borderRadius: "18px 18px 18px 0", maxWidth: "80%", border: "1px solid #eee" }}>
-                                                {c.content}
-                                            </div>
-                                            <small className="ms-2 text-muted" style={{ fontSize: "0.8rem" }}>
-                                                <strong>@{c.username}</strong> • {c.sentAt}
-                                            </small>
-                                        </div>
-                                    ))
+                <div className="container-fluid p-0">
+                    <div className="row g-0">
+                        <div className="col-12 col-xl-11">
+                            <div className="mb-2 shadow-sm overflow-hidden d-flex align-items-center justify-content-center border border-2 border-dark"
+                                style={{ width: "100%", aspectRatio: "21 / 9", backgroundColor: "#aaddff", borderRadius: "15px" }}>
+                                {previewUrl ? (
+                                    <img src={previewUrl} alt="Work Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                                 ) : (
-                                    <div className="text-center py-5 text-muted">
-                                        <p style={{ fontSize: "1.2rem" }}>まだコメントはありません。最初のコメントを書き込みましょう！</p>
+                                    <span className="text-muted fw-bold" style={{ fontSize: "2rem" }}>No Image</span>
+                                )}
+                            </div>
+
+                            {/* 詳細情報カード */}
+                            <div className="detail-card shadow-sm">
+                                {!showComments ? (
+                                    <div className="animate__animated animate__fadeIn">
+                                        {/* 作品説明 */}
+                                        <section className="mb-5 text-start">
+                                            <h4 className="fw-bold mb-3 m-0 p-0" style={{ fontSize: "1.6rem" }}>■ 作品説明</h4>
+                                            <div className="info-display-box shadow-sm">
+                                                {work.explanation || "（説明はありません）"}
+                                            </div>
+                                        </section>
+
+                                        {/* カテゴリー & アクションボタン */}
+                                        <div className="row align-items-center g-4 text-start">
+                                            <div className="col-12 col-lg-6">
+                                                <h4 className="fw-bold mb-3 m-0 p-0" style={{ fontSize: "1.6rem" }}>■ カテゴリー</h4>
+                                                <div className="d-flex flex-wrap gap-3 mt-2">
+                                                    {work.tags?.map(t => (
+                                                        <Badge key={t.tagId} pill className="px-4 py-2 fs-5 text-dark border border-dark" style={{ backgroundColor: "#d0d0d0" }}>
+                                                            {t.tagName}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            {/* アクションボタン群 (統一デザイン) */}
+                                            <div className="col-12 col-lg-6 d-flex justify-content-lg-end gap-5">
+                                                <div className="action-item" onClick={handleAddAlbum}>
+                                                    <Star size={50} color="#f1c40f" />
+                                                    <div className="action-label">アルバム</div>
+                                                </div>
+
+                                                <div className="action-item" onClick={() => setShowComments(true)}>
+                                                    <ChatRightText size={50} color="#333" />
+                                                    <div className="action-label">コメント</div>
+                                                </div>
+
+                                                <div className="action-item" onClick={handleLike}>
+                                                    <HeartFill size={50} color="#e91e63" />
+                                                    <div className="action-label">いいね</div>
+                                                    <span className="like-count-badge">{likes}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* 投稿者情報 */}
+                                        <div className="mt-5 pt-4 border-top border-2 border-dark d-flex justify-content-between align-items-center">
+                                            <span className="fs-4 fw-bold text-muted">投稿者: @{work.username || "Unknown"}</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    /* コメントモード */
+                                    <div className="d-flex flex-column h-100 animate__animated animate__fadeIn text-start">
+                                        <h2 className="fw-bold border-bottom border-4 border-dark pb-3 mb-4">Comments</h2>
+                                        <div className="flex-grow-1 overflow-auto my-2 pe-3" style={{ maxHeight: "500px" }}>
+                                            {work.comments?.length > 0 ? (
+                                                work.comments.map((c, i) => (
+                                                    <div key={i} className="mb-4 d-flex flex-column align-items-start">
+                                                        <div className="bg-white p-4 shadow-sm border border-2 shadow-sm" style={{ borderRadius: "20px 20px 20px 0", maxWidth: "80%", fontSize: "1.3rem" }}>
+                                                            {c.content}
+                                                        </div>
+                                                        <small className="mt-2 ms-2 fw-bold text-muted fs-6">
+                                                            @{c.username} • {c.sentAt}
+                                                        </small>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <p className="fs-3 text-muted py-5 text-center w-100">まだコメントはありません。</p>
+                                            )}
+                                        </div>
+                                        <div className="position-relative mt-4">
+                                            <textarea className="form-control shadow-sm border-2 fs-4" rows="3"
+                                                placeholder="メッセージを入力..."
+                                                value={commentText} onChange={e => setCommentText(e.target.value)}
+                                                style={{ borderRadius: "20px", paddingRight: "100px", backgroundColor: "#fff" }} />
+                                            <button onClick={handleSendComment}
+                                                style={{ position: "absolute", right: "25px", top: "50%", transform: "translateY(-50%)", border: "none", background: "none" }}>
+                                                <SendFill size={45} color="#333" />
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
-                            <div className="position-relative mt-4">
-                                <textarea className="form-control shadow-sm" rows="3"
-                                    placeholder="ここにテキスト入力して送信は右下のアイコンをクリック..."
-                                    value={commentText} onChange={e => setCommentText(e.target.value)}
-                                    style={{ borderRadius: "15px", paddingRight: "60px", border: "2px solid #ddd" }} />
-                                <button onClick={handleSendComment}
-                                    style={{ position: "absolute", right: "15px", bottom: "10px", border: "none", background: "none", padding: "5px" }}>
-                                    <SendFill size={30} color="#333" />
-                                </button>
-                            </div>
                         </div>
-                    )}
+                    </div>
                 </div>
             </main>
         </div>
