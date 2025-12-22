@@ -223,10 +223,14 @@ class ApiCommunicationExample {
     // }
 
     static async removeFromAlbum(jwt, workId) {
-        const response = await fetch(`http://localhost:8080/api/works/${workId}/album`, {
-            method: "POST", // DELETE ではなく POST に変更してみる
-            headers: { "Authorization": `Bearer ${jwt}` }
+        const response = await fetch(`http://localhost:8080/api/works/${workId}/album/remove`, {
+            method: "POST", // Javaの @PostMapping に合わせる
+            headers: {
+                "Authorization": `Bearer ${jwt}`
+            }
         });
+
+        // 405エラーが出ないかチェック
         await this.checkResponse(response);
     }
 
@@ -237,6 +241,18 @@ class ApiCommunicationExample {
         });
         await this.checkResponse(response);
         return await response.json();
+    }
+
+    static async removeLike(jwt, workId) {
+        const response = await fetch(`http://localhost:8080/api/works/${workId}/unlike`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${jwt}`,
+                "Content-Type": "application/json"
+            }
+        });
+        await this.checkResponse(response);
+        return await response.json(); // 新しいカウントを返す
     }
 }
 

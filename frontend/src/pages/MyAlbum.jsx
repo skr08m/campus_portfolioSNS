@@ -76,15 +76,35 @@ const MyAlbum = () => {
         fetchAlbum();
     }, [navigate]);
 
+    // const handleRemove = async (e, workId) => {
+    //     e.stopPropagation();
+    //     if (!window.confirm("アルバムから削除しますか？")) return;
+    //     try {
+    //         const jwt = localStorage.getItem("jwt");
+    //         await ApiCommunication.removeFromAlbum(jwt, workId);
+    //         setAlbumWorks(albumWorks.filter(w => w.id !== workId));
+    //     } catch (error) {
+    //         alert("削除に失敗しました");
+    //     }
+    // };
+
     const handleRemove = async (e, workId) => {
         e.stopPropagation();
         if (!window.confirm("アルバムから削除しますか？")) return;
+
         try {
             const jwt = localStorage.getItem("jwt");
+
+            // 1. 通信が終わるのを待つ（await）
             await ApiCommunication.removeFromAlbum(jwt, workId);
-            setAlbumWorks(albumWorks.filter(w => w.id !== workId));
+
+            // 2. 通信が成功したら画面（State）を更新する
+            setAlbumWorks(prev => prev.filter(w => w.id !== workId));
+
+            alert("アルバムから削除しました");
         } catch (error) {
-            alert("削除に失敗しました");
+            console.error("削除エラー:", error);
+            alert("データベースの削除に失敗しました。Java側に削除処理が実装されているか確認してください。");
         }
     };
 
