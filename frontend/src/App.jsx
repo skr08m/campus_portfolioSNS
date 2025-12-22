@@ -14,6 +14,7 @@ import WorkDetail from './pages/WorkDetail';
 import MyAlbum from './pages/MyAlbum';
 import PastWork from './pages/PastWork';
 import MyProfile from './pages/MyProfile';
+import EditProfile from './pages/EditProfile';
 
 
 function App() {
@@ -63,6 +64,8 @@ function App() {
 
       {/* マイプロフィール画面 */}
       <Route path="/myprofile" element={<MyProfile />} />
+
+      <Route path="/editprofile" element={<EditProfile />} />
     </Routes>
   )
 }
