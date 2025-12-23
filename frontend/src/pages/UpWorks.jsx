@@ -1,14 +1,15 @@
 // src/pages/UpWorks.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Form } from "react-bootstrap";
-import { House, Search, Upload, Images, Person, BoxArrowRight, Star, X } from "react-bootstrap-icons";
+import { Button, Form, ListGroup } from "react-bootstrap";
+import { Upload, X, FileEarmark } from "react-bootstrap-icons";
 import Sidebar from "../components/Sidebar";
 
 const UpWorks = () => {
     const navigate = useNavigate();
 
-    const [file, setFile] = useState(null);
+    // 1. ファイルを配列で管理するように変更
+    const [files, setFiles] = useState([]);
     const [detail, setDetail] = useState("");
     const [categories, setCategories] = useState([]);
     const [dragOver, setDragOver] = useState(false);
@@ -23,37 +24,45 @@ const UpWorks = () => {
         );
     };
 
+    // ファイル追加の共通ロジック
+    const addFiles = (newFileList) => {
+        const fileArray = Array.from(newFileList);
+        setFiles((prev) => [...prev, ...fileArray]);
+    };
+
     const handleDrop = (e) => {
         e.preventDefault();
         setDragOver(false);
-        if (e.dataTransfer.files[0]) {
-            setFile(e.dataTransfer.files[0]);
+        if (e.dataTransfer.files.length > 0) {
+            addFiles(e.dataTransfer.files);
         }
     };
 
+    // 特定のファイルをリストから削除する機能
+    const removeFile = (index) => {
+        setFiles((prev) => prev.filter((_, i) => i !== index));
+    };
+
     const handleConfirm = () => {
-        if (!file) {
+        if (files.length === 0) {
             alert("ファイルを選択してください");
             return;
         }
         navigate("/confirm", {
-            state: { file, detail, categories },
+            state: { files, detail, categories }, // files (配列) を渡す
         });
     };
 
     return (
         <div className="d-flex w-100 m-0 p-0" style={{ minHeight: "100vh", backgroundColor: "#fff" }}>
-
             <Sidebar />
 
-            {/* メインコンテンツ: 左右のマージンを整え、サイドバーに寄せる */}
             <main className="flex-grow-1" style={{
                 marginLeft: "240px",
                 padding: "60px 40px",
                 width: "calc(100% - 240px)",
                 minWidth: 0
             }}>
-
                 <style>{`
                     @media (max-width: 767px) {
                         main { margin-left: 0 !important; width: 100% !important; padding: 20px !important; }
@@ -65,9 +74,10 @@ const UpWorks = () => {
                         box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s ease;
                     }
                     .drop-zone {
-                        height: 300px; width: 100%;
+                        height: 200px; width: 100%;
                         transition: 0.3s; border-radius: 15px;
-                        font-size: 1.5rem; font-weight: bold;
+                        font-size: 1.2rem; font-weight: bold;
+                        cursor: pointer;
                     }
                     .category-btn {
                         border-radius: 30px; padding: 12px 50px;
@@ -78,49 +88,73 @@ const UpWorks = () => {
                     .category-btn.active {
                         background-color: #d0d0d0; border-color: #000;
                     }
+                    .file-item {
+                        background: #f8f9fa;
+                        border-radius: 10px;
+                        margin-bottom: 8px;
+                        display: flex;
+                        align-items: center;
+                        padding: 10px 15px;
+                        border: 1px solid #eee;
+                    }
                 `}</style>
 
-                {/* 右上固定 ×ボタン */}
                 <button className="fixed-close-btn" onClick={() => navigate("/home")} title="閉じる">
                     <X size={40} color="#000000" />
                 </button>
 
-                {/* タイトルセクション: 左端揃え */}
                 <div className="mb-5 text-start p-0">
                     <h1 className="m-0 p-0" style={{ fontSize: "3.5rem", fontWeight: "bold", lineHeight: "1.2" }}>作品を投稿しよう！</h1>
                     <hr className="ms-0" style={{ width: "100%", maxWidth: "800px", borderTop: "5px solid #000", opacity: 1, marginTop: "10px" }} />
                 </div>
 
-                {/* コンテンツエリア: 左側のパディングを 0 にして見出しを揃える */}
                 <div className="container-fluid p-0">
                     <div className="row g-0">
                         <div className="col-12 col-xl-11">
 
-                            {/* ファイルアップロード */}
+                            {/* ファイルアップロードセクション */}
                             <section className="mb-5 text-start">
-                                <h4 className="fw-bold mb-3 m-0 p-0" style={{ fontSize: "1.6rem" }}>■ ファイル</h4>
+                                <h4 className="fw-bold mb-3 m-0 p-0" style={{ fontSize: "1.6rem" }}>■ ファイル (複数可)</h4>
                                 <div
-                                    className="drop-zone shadow-sm border border-2 border-dark d-flex flex-column align-items-center justify-content-center"
+                                    className="drop-zone shadow-sm border border-2 border-dark d-flex flex-column align-items-center justify-content-center mb-3"
                                     onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                                     onDragLeave={() => setDragOver(false)}
                                     onDrop={handleDrop}
+                                    onClick={() => document.getElementById('file-upload').click()}
                                     style={{ background: dragOver ? "#9fd0ff" : "#b7dcff" }}
                                 >
-                                    {file ? (
-                                        <div className="text-center px-3">
-                                            <Upload size={60} className="mb-3" />
-                                            <p className="mb-0 text-break fs-4 text-black">{file.name}</p>
-                                        </div>
-                                    ) : (
-                                        "ここにドラッグ＆ドロップ"
-                                    )}
+                                    <Upload size={40} className="mb-2" />
+                                    <span>ファイルをドラッグ＆ドロップ または クリックして追加</span>
                                 </div>
-                                <div className="text-end mt-3">
-                                    <Form.Label htmlFor="file-upload" className="btn btn-light border shadow-sm px-5 py-2 fw-bold" style={{ cursor: "pointer", borderRadius: "10px", fontSize: "1.2rem", color: "#000" }}>
-                                        ファイルを選択
-                                    </Form.Label>
-                                    <Form.Control id="file-upload" type="file" className="d-none" onChange={(e) => setFile(e.target.files[0])} />
-                                </div>
+
+                                {/* 2. hidden inputに multiple 属性を追加 */}
+                                <Form.Control
+                                    id="file-upload"
+                                    type="file"
+                                    multiple
+                                    className="d-none"
+                                    onChange={(e) => addFiles(e.target.files)}
+                                />
+
+                                {/* 選択されたファイルのリスト表示 */}
+                                {files.length > 0 && (
+                                    <div className="mb-3">
+                                        <p className="fw-bold small text-muted">選択されたファイル:</p>
+                                        {files.map((f, index) => (
+                                            <div key={index} className="file-item shadow-sm">
+                                                <FileEarmark className="me-2" />
+                                                <span className="flex-grow-1 text-truncate">{f.name}</span>
+                                                <Button
+                                                    variant="link"
+                                                    className="p-0 text-danger"
+                                                    onClick={(e) => { e.stopPropagation(); removeFile(index); }}
+                                                >
+                                                    <X size={24} />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </section>
 
                             {/* 詳細入力 */}

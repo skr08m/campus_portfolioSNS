@@ -1,16 +1,18 @@
 // src/pages/ConfirmWorks.jsx
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Row, Col } from "react-bootstrap";
-import { House, Search, Upload, Images, Person, BoxArrowRight, Star, X } from "react-bootstrap-icons";
+import { House, Search, Upload, Images, Person, BoxArrowRight, Star, X, FileEarmark } from "react-bootstrap-icons";
+import Sidebar from "../components/Sidebar";
 
 const ConfirmWorks = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const { file, detail, categories } = location.state || {};
+    // UpWorksから渡されたデータを受け取る (file ではなく files)
+    const { files, detail, categories } = location.state || {};
 
     // ファイルがない場合は投稿画面へ戻す
-    if (!file) {
+    if (!files || files.length === 0) {
         navigate("/upworks");
         return null;
     }
@@ -25,10 +27,17 @@ const ConfirmWorks = () => {
         }
 
         const formData = new FormData();
-        formData.append("title", file.name);
+        // 代表タイトルとして1番目のファイル名を使用（Java側の仕様に合わせる）
+        formData.append("title", files[0].name);
         formData.append("explanation", detail);
-        formData.append("workExtension", file.name.split(".").pop());
-        formData.append("workData", file);
+        formData.append("workExtension", files[0].name.split(".").pop());
+
+        // ★ 複数のファイルをすべて FormData に追加
+        files.forEach((f) => {
+            formData.append("workData", f);
+        });
+
+        // カテゴリーを追加
         categories.forEach((c) => formData.append("tags", c));
 
         try {
@@ -50,36 +59,7 @@ const ConfirmWorks = () => {
     return (
         <div className="d-flex w-100 m-0 p-0" style={{ minHeight: "100vh", backgroundColor: "#fff" }}>
 
-            {/* サイドバー: 左端固定 (他の画面と共通) */}
-            <aside className="d-none d-md-block shadow-sm" style={{
-                width: "240px",
-                backgroundColor: "#e0e0e0",
-                position: "fixed",
-                left: 0,
-                top: 0,
-                height: "100vh",
-                zIndex: 1000
-            }}>
-                <div className="text-center py-4">
-                    <h4 style={{ borderBottom: "1px solid #000", display: "inline-block", paddingBottom: "5px" }}>PortFolio</h4>
-                    <div className="mx-auto" style={{ width: "120px", height: "120px", borderRadius: "50%", backgroundColor: "white", margin: "20px 0" }} />
-                </div>
-
-                <ul className="list-group list-group-flush mt-2 px-3">
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/home")}><House className="me-3" size={24} /> ホーム</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/find")}><Search className="me-3" size={24} /> 見つける</li>
-                    <li className="list-group-item border-0 py-4 fw-bold active text-dark" style={{ backgroundColor: "#d0d0d0", borderRadius: "10px" }}><Upload className="me-3" size={24} /> 作品投稿</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/pastworks")}><Images className="me-3" size={24} /> 過去作品</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/album")}><Star className="me-3" size={24} color="#f1c40f" /> マイアルバム</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }}><Person className="me-3" size={24} /> プロフィール</li>
-                </ul>
-
-                <div className="position-absolute bottom-0 w-100 p-3 mb-3">
-                    <button className="btn btn-outline-danger w-100 border-2 py-2 fw-bold" onClick={() => { localStorage.removeItem("jwt"); navigate("/"); }}>
-                        <BoxArrowRight className="me-2" /> ログアウト
-                    </button>
-                </div>
-            </aside>
+            <Sidebar />
 
             {/* メインコンテンツ: サイドバーに寄せる */}
             <main className="flex-grow-1" style={{
@@ -98,6 +78,7 @@ const ConfirmWorks = () => {
                         background-color: #ffffff; border: 1px solid #ddd; border-radius: 50%; 
                         padding: 8px; display: flex; align-items: center; justify-content: center;
                         box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s ease;
+                        cursor: pointer;
                     }
                     .info-box {
                         width: 100%; border-radius: 15px; background-color: #f2f2f2; 
@@ -107,6 +88,15 @@ const ConfirmWorks = () => {
                         border-radius: 30px; padding: 12px 50px; font-weight: bold;
                         border: 2px solid #000; background-color: #d0d0d0;
                         font-size: 1.1rem; color: #000;
+                    }
+                    .file-confirm-item {
+                        background: #fff;
+                        border: 1px solid #ddd;
+                        padding: 15px;
+                        border-radius: 10px;
+                        margin-bottom: 10px;
+                        display: flex;
+                        align-items: center;
                     }
                 `}</style>
 
@@ -125,12 +115,16 @@ const ConfirmWorks = () => {
                     <div className="row g-0">
                         <div className="col-12 col-xl-11">
 
-                            {/* ファイル確認 */}
+                            {/* ファイル確認（リスト表示に変更） */}
                             <section className="mb-5 text-start">
-                                <h4 className="fw-bold mb-3 m-0 p-0" style={{ fontSize: "1.6rem" }}>■ ファイル</h4>
-                                <div className="info-box shadow-sm d-flex align-items-center justify-content-center fw-bold"
-                                    style={{ height: "300px", backgroundColor: "#b7dcff", border: "2px solid #000" }}>
-                                    {file.name}
+                                <h4 className="fw-bold mb-3 m-0 p-0" style={{ fontSize: "1.6rem" }}>■ ファイル ({files.length}件)</h4>
+                                <div className="info-box shadow-sm" style={{ backgroundColor: "#b7dcff", border: "2px solid #000" }}>
+                                    {files.map((f, index) => (
+                                        <div key={index} className="file-confirm-item shadow-sm">
+                                            <FileEarmark className="me-3" size={24} />
+                                            <span className="fw-bold text-break" style={{ fontSize: "1.2rem" }}>{f.name}</span>
+                                        </div>
+                                    ))}
                                 </div>
                             </section>
 

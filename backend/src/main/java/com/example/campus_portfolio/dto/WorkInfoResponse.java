@@ -16,6 +16,7 @@ public class WorkInfoResponse {
     private String workExtension;
     private String username;
     private Integer likesCount; // ★ これにより setLikesCount(...) が生成されます
+    private List<Long> fileIds;
     private List<CommentResponse> comments; // コメント表示用のDTOリスト
     private List<TagResponse> tags;
 }

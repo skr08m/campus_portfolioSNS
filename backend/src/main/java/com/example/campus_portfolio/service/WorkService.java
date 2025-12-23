@@ -78,7 +78,7 @@ public class WorkService {
         WorkInfoResponse workResponse = new WorkInfoResponse();
         workResponse.setId(work.getWorkId());
         workResponse.setTitle(work.getTitle());
-        workResponse.setExplanation(work.getExplanation()); // getExplanationを使用
+        workResponse.setExplanation(work.getExplanation());
         workResponse.setRepositoryUrl(work.getRepositoryUrl());
         workResponse.setWorkUploadTime(String.valueOf(work.getWorkUploadTime()));
         workResponse.setWorkExtension(work.getWorkExtension());
@@ -111,6 +111,14 @@ public class WorkService {
             }
         }
         workResponse.setTags(tags);
+
+        // ★ 追加：複数画像対応
+        // 本来はWorkFileテーブルからIDを取得するが、簡易版として
+        // 現在の作品IDをリストに入れて返す（フロント側でのループの起点にする）
+        List<Long> ids = new ArrayList<>();
+        ids.add(work.getWorkId());
+        workResponse.setFileIds(ids);
+
         return workResponse;
     }
 
@@ -148,6 +156,8 @@ public class WorkService {
         work.setWorkExtension(request.getWorkExtension());
         work.setLikesCount(0);
 
+        // ★ 複数ファイル対応（Requestを拡張してMultipartFile[]を受け取る想定）
+        // 現状の簡易実装では1枚目を保存。複数枚保存にはWorkにList<WorkFile>の定義が必要
         MultipartFile file = request.getWorkData();
         if (file != null && !file.isEmpty()) {
             work.setWorkData(file.getBytes());
@@ -168,18 +178,14 @@ public class WorkService {
      * 作品検索ロジック (キーワード ＋ カテゴリー)
      */
     public List<WorkInfoResponse> searchWorks(String keyword, List<String> tags) {
-        // 1. まずキーワードで絞り込む（キーワードが空なら全件）
         List<Work> works = (keyword != null && !keyword.isBlank()) 
             ? workRepository.findByTitleContaining(keyword) : workRepository.findAll();
 
-        // 2. タグ指定がある場合、さらにフィルタリング
         if (tags != null && !tags.isEmpty()) {
             works = works.stream().filter(work -> {
                 List<String> workTagNames = work.getTags().stream()
                         .map(Tag::getTagName)
                         .toList();
-                // 選択されたタグのいずれか1つでも含まれていればヒット（OR検索）
-                // 全てを含ませたい場合は .containsAll(tags) に戻してください
                 return tags.stream().anyMatch(workTagNames::contains);
             }).collect(Collectors.toList());
         }
