@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Badge, Spinner, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Badge, Spinner, Alert, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { X } from 'react-bootstrap-icons'; // react-bootstrap-iconsを使用
+import { X, BoxArrowInRight } from 'react-bootstrap-icons';
 
 const MyProfile = () => {
     const navigate = useNavigate();
@@ -24,7 +24,10 @@ const MyProfile = () => {
                 });
 
                 if (!res.ok) {
-                    if (res.status === 401) throw new Error("認証期限が切れました。再ログインしてください。");
+                    if (res.status === 401) {
+                        localStorage.removeItem("jwt"); // 期限切れ時はトークンを削除
+                        throw new Error("認証期限が切れました。再ログインしてください。");
+                    }
                     throw new Error("プロフィールの取得に失敗しました");
                 }
 
@@ -40,38 +43,55 @@ const MyProfile = () => {
         fetchProfile();
     }, []);
 
+    // 読み込み中表示
     if (loading) return (
-        <Container className="text-center" style={{ marginTop: "100px" }}>
-            <Spinner animation="border" variant="primary" />
-            <p className="mt-3 text-muted">読み込み中...</p>
+        <Container className="d-flex flex-column justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
+            <Spinner animation="border" variant="primary" style={{ width: '3rem', height: '3rem' }} />
+            <p className="mt-3 text-muted fw-bold">読み込み中...</p>
         </Container>
     );
 
+    // エラー・認証切れ時
     if (error) return (
-        <Container className="mt-5">
-            <Alert variant="danger">{error}</Alert>
+        <Container className="py-5 d-flex justify-content-center align-items-center" style={{ minHeight: "80vh" }}>
+            <Card className="shadow-lg border-0 text-center p-5" style={{ borderRadius: '25px', maxWidth: '500px' }}>
+                <div className="mb-4">
+                    <div className="bg-light rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm" style={{ width: '80px', height: '80px' }}>
+                        <X size={50} color="#e53e3e" />
+                    </div>
+                </div>
+                <h3 className="fw-bold mb-3">アクセスエラー</h3>
+                <p className="text-secondary mb-4 fs-5">{error}</p>
+                <Button
+                    variant="dark"
+                    className="w-100 py-3 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center"
+                    onClick={() => navigate("/")}
+                >
+                    <BoxArrowInRight className="me-2" size={22} />
+                    ログイン画面へ戻る
+                </Button>
+            </Card>
         </Container>
     );
 
     return (
         <>
             <style>{`
-        .fixed-close-btn {
-          position: fixed; top: 25px; right: 30px; z-index: 2001;
-          background-color: #ffffff; border: 1px solid #ddd; border-radius: 50%; 
-          padding: 8px; display: flex; align-items: center; justify-content: center;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s ease;
-          cursor: pointer;
-        }
-        .fixed-close-btn:hover { transform: scale(1.1); background-color: #f8f9fa; }
-      `}</style>
+                .fixed-close-btn {
+                    position: fixed; top: 25px; right: 30px; z-index: 2001;
+                    background-color: #ffffff; border: 1px solid #ddd; border-radius: 50%; 
+                    padding: 8px; display: flex; align-items: center; justify-content: center;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s ease;
+                    cursor: pointer;
+                }
+                .fixed-close-btn:hover { transform: scale(1.1); background-color: #f8f9fa; }
+            `}</style>
 
             {/* 右上固定 ×ボタン */}
             <button className="fixed-close-btn" onClick={() => navigate("/home")} title="閉じる">
                 <X size={40} color="#000000" />
             </button>
 
-            {/* デモ用にmaxWidthを広げつつ中央寄せ */}
             <Container className="py-5" style={{ maxWidth: '1000px' }}>
                 <Card className="shadow-sm border-0 overflow-hidden" style={{ borderRadius: '20px' }}>
 
@@ -129,7 +149,6 @@ const MyProfile = () => {
                             </div>
                         </section>
 
-                        {/* 修正：ボタンの位置をさらに下へ調整 */}
                         <div className="mt-5 pt-2">
                             <button
                                 className="btn btn-outline-primary rounded-pill px-4"
