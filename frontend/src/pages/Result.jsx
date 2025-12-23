@@ -1,8 +1,53 @@
+// src/pages/Result.jsx
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ApiCommunication from "../api/ApiCommunicationExample";
+import Sidebar from "../components/Sidebar";
 import { Row, Col } from "react-bootstrap";
-import { House, Search, Upload, Images, Person, BoxArrowRight, Star, X } from "react-bootstrap-icons";
+import { X } from "react-bootstrap-icons";
+
+// --- 認証付き画像表示コンポーネント ---
+const ResultWorkImage = ({ workId }) => {
+    const [imageUrl, setImageUrl] = useState(null);
+    const [error, setError] = useState(false);
+
+    useEffect(() => {
+        let isMounted = true;
+        const jwt = localStorage.getItem("jwt");
+
+        const fetchImage = async () => {
+            try {
+                const res = await fetch(`http://localhost:8080/api/works/${workId}/file`, {
+                    headers: { "Authorization": `Bearer ${jwt}` }
+                });
+                if (!res.ok) throw new Error();
+                const blob = await res.blob();
+                const objectUrl = URL.createObjectURL(blob);
+                if (isMounted) setImageUrl(objectUrl);
+            } catch (err) {
+                if (isMounted) setError(true);
+            }
+        };
+
+        fetchImage();
+
+        return () => {
+            isMounted = false;
+            if (imageUrl) URL.revokeObjectURL(imageUrl);
+        };
+    }, [workId]);
+
+    if (error) return <span className="text-muted fw-bold">No Image</span>;
+    if (!imageUrl) return <div className="spinner-border spinner-border-sm text-secondary" role="status"></div>;
+
+    return (
+        <img
+            src={imageUrl}
+            alt="Work"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+        />
+    );
+};
 
 const Result = () => {
     const location = useLocation();
@@ -14,6 +59,11 @@ const Result = () => {
 
     useEffect(() => {
         const jwt = localStorage.getItem("jwt");
+        if (!jwt) {
+            navigate("/");
+            return;
+        }
+
         const fetchWorks = async () => {
             try {
                 const result = await ApiCommunication.searchWorks(jwt, keyword, tags);
@@ -22,38 +72,22 @@ const Result = () => {
                 console.error(err);
                 alert("検索に失敗しました");
             } finally {
-                // 通信が早すぎる場合に備えて少しだけ待機時間を設けると、
-                // プログレスバーが綺麗に見えます（任意）
+                // プログレスバー演出のための遅延
                 setTimeout(() => setLoading(false), 800);
             }
         };
 
-        if (jwt) {
-            fetchWorks();
-        } else {
-            navigate("/");
-        }
+        fetchWorks();
     }, [keyword, tags, navigate]);
 
-    // ローディング中（プログレスバーのみ表示）のレンダリング
+    // プログレスバー表示
     if (loading) {
         return (
             <div className="d-flex flex-column justify-content-center align-items-center vh-100 bg-white p-5">
                 <div style={{ width: "100%", maxWidth: "800px" }}>
                     <h2 className="text-center mb-5 fw-bold" style={{ fontSize: "2.5rem", color: "#333" }}>作品をさがしています...</h2>
-                    <div
-                        className="progress shadow-sm"
-                        role="progressbar"
-                        aria-label="Searching"
-                        aria-valuenow="100"
-                        aria-valuemin="0"
-                        aria-valuemax="100"
-                        style={{ height: "60px", borderRadius: "30px", backgroundColor: "#f0f0f0" }}
-                    >
-                        <div
-                            className="progress-bar progress-bar-striped progress-bar-animated bg-dark"
-                            style={{ width: "100%", fontSize: "1.8rem", fontWeight: "bold" }}
-                        >
+                    <div className="progress shadow-sm" style={{ height: "60px", borderRadius: "30px", backgroundColor: "#f0f0f0" }}>
+                        <div className="progress-bar progress-bar-striped progress-bar-animated bg-dark" style={{ width: "100%", fontSize: "1.8rem", fontWeight: "bold" }}>
                             Searching...
                         </div>
                     </div>
@@ -62,7 +96,6 @@ const Result = () => {
         );
     }
 
-    // 読み込み完了後のレンダリング（サイドバーありの通常画面）
     const MIN_CARDS = 12;
     const displayWorks = [...works];
     while (displayWorks.length < MIN_CARDS) {
@@ -71,43 +104,19 @@ const Result = () => {
 
     return (
         <div className="d-flex w-100 m-0 p-0" style={{ minHeight: "100vh", backgroundColor: "#fff" }}>
-            {/* サイドバー */}
-            <aside className="d-none d-md-block shadow-sm" style={{
-                width: "240px", backgroundColor: "#e0e0e0", position: "fixed",
-                left: 0, top: 0, height: "100vh", zIndex: 1000
-            }}>
-                <div className="text-center py-4">
-                    <h4 style={{ borderBottom: "1px solid #000", display: "inline-block", paddingBottom: "5px" }}>PortFolio</h4>
-                    <div className="mx-auto" style={{ width: "120px", height: "120px", borderRadius: "50%", backgroundColor: "white", margin: "20px 0" }} />
-                </div>
-                <ul className="list-group list-group-flush mt-2 px-3">
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/home")}><House className="me-3" size={24} /> ホーム</li>
-                    <li className="list-group-item border-0 py-4 fw-bold active text-dark" style={{ backgroundColor: "#d0d0d0", borderRadius: "10px" }} onClick={() => navigate("/find")}><Search className="me-3" size={24} /> 見つける</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/upworks")}><Upload className="me-3" size={24} /> 作品投稿</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/pastworks")}><Images className="me-3" size={24} /> 過去作品</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/album")}><Star className="me-3" size={24} color="#f1c40f" /> マイアルバム</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }}><Person className="me-3" size={24} /> プロフィール</li>
-                </ul>
-                <div className="position-absolute bottom-0 w-100 p-3 mb-3">
-                    <button className="btn btn-outline-danger w-100 border-2 py-2 fw-bold" onClick={() => { localStorage.removeItem("jwt"); navigate("/"); }}>
-                        <BoxArrowRight className="me-2" /> ログアウト
-                    </button>
-                </div>
-            </aside>
+            <Sidebar />
 
-            {/* メインコンテンツ */}
             <main className="flex-grow-1" style={{ marginLeft: "240px", padding: "60px 40px", width: "calc(100% - 240px)", minWidth: 0 }}>
                 <style>{`
                     @media (max-width: 767px) { main { margin-left: 0 !important; width: 100% !important; padding: 20px !important; } }
-                    .fixed-close-btn {
-                        position: fixed; top: 25px; right: 30px; z-index: 2001;
-                        background-color: #ffffff; border: 1px solid #ddd; border-radius: 50%; 
-                        padding: 8px; display: flex; align-items: center; justify-content: center;
-                        box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s ease;
-                    }
+                    .fixed-close-btn { position: fixed; top: 25px; right: 30px; z-index: 2001; background-color: #ffffff; border: 1px solid #ddd; border-radius: 50%; padding: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s ease; cursor: pointer; }
                     .fixed-close-btn:hover { transform: scale(1.1); background-color: #f8f9fa; }
-                    .work-card { border-radius: 15px; overflow: hidden; transition: all 0.3s ease; background: #f8f9fa; border: 2px solid #eee; }
-                    .work-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important; border-color: #333; }
+                    
+                    .custom-card { border: 2px solid #eee; border-radius: 20px; overflow: hidden; transition: all 0.3s ease; background-color: #fff; height: 100%; }
+                    .custom-card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(0,0,0,0.15); border-color: #333; }
+                    
+                    .card-img-container { width: 100%; aspect-ratio: 1 / 1; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 1px solid #eee; }
+                    .empty-card { border-radius: 20px; border: 2px dashed #ddd; background: #fafafa; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; }
                 `}</style>
 
                 <button className="fixed-close-btn" onClick={() => navigate("/find")} title="戻る">
@@ -117,6 +126,7 @@ const Result = () => {
                 <div className="mb-5 text-start">
                     <h1 className="m-0 p-0" style={{ fontSize: "3.5rem", fontWeight: "bold", lineHeight: "1.2" }}>こんな感じ？</h1>
                     <hr className="mx-0" style={{ width: "100%", maxWidth: "600px", borderTop: "5px solid #000", opacity: 1, marginTop: "10px" }} />
+                    <p className="text-muted fs-5 mt-3">キーワード「{keyword || "指定なし"}」の検索結果です</p>
                 </div>
 
                 <div className="container-fluid p-0">
@@ -124,16 +134,18 @@ const Result = () => {
                         {displayWorks.map((work) => (
                             <Col xs={12} md={6} xl={4} key={work.id}>
                                 {work.isEmpty ? (
-                                    <div style={{ aspectRatio: "1 / 1", backgroundColor: "#fafafa", border: "2px dashed #ddd", borderRadius: "15px" }} />
+                                    <div className="empty-card shadow-sm">
+                                        <span className="text-muted fw-bold fs-4">Empty Slot</span>
+                                    </div>
                                 ) : (
-                                    <div className="work-card shadow-sm h-100" onClick={() => navigate(`/works/${work.id}`)} style={{ cursor: "pointer" }}>
-                                        <div style={{ width: "100%", aspectRatio: "1 / 1", backgroundColor: "#f0f0f0", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                                            <img src={`http://localhost:8080/api/works/${work.id}/file`} alt={work.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                    <div className="card custom-card shadow-sm" onClick={() => navigate(`/works/${work.id}`)} style={{ cursor: "pointer" }}>
+                                        <div className="card-img-container">
+                                            <ResultWorkImage workId={work.id} />
                                         </div>
-                                        <div className="p-4 bg-white d-flex justify-content-between align-items-center border-top">
+                                        <div className="card-body p-4 d-flex justify-content-between align-items-center">
                                             <div className="text-truncate" style={{ maxWidth: "85%" }}>
-                                                <span className="fw-bold fs-3 d-block text-truncate">{work.title}</span>
-                                                <small className="text-muted">@{work.username || "Unknown"}</small>
+                                                <h3 className="card-title fw-bold mb-1 text-truncate" style={{ fontSize: "1.8rem" }}>{work.title}</h3>
+                                                <p className="card-text text-muted mb-0 fs-5">@{work.username || "Unknown"}</p>
                                             </div>
                                             <div style={{ width: "15px", height: "15px", borderRadius: "50%", backgroundColor: "#000" }} />
                                         </div>
