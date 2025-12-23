@@ -140,7 +140,7 @@ const MyProfile = () => {
                                             className="border shadow-sm px-4 py-3"
                                             style={{ fontSize: '1.1rem', fontWeight: '500' }}
                                         >
-                                            #{tagName}
+                                            {tagName}
                                         </Badge>
                                     ))
                                 ) : (
