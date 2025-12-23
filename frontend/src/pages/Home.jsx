@@ -4,6 +4,34 @@ import { useNavigate } from "react-router-dom";
 import ApiCommunication from "../api/ApiCommunicationExample";
 import Sidebar from "../components/Sidebar";
 
+// --- 認証付き画像表示コンポーネント ---
+const HomeWorkImage = ({ workId }) => {
+    const [imageUrl, setImageUrl] = useState(null);
+    const [error, setError] = useState(false);
+    useEffect(() => {
+        let isMounted = true;
+        const jwt = localStorage.getItem("jwt");
+        const fetchImage = async () => {
+            try {
+                const res = await fetch(`http://localhost:8080/api/works/${workId}/file`, {
+                    headers: { "Authorization": `Bearer ${jwt}` }
+                });
+                if (!res.ok) throw new Error();
+                const blob = await res.blob();
+                const objectUrl = URL.createObjectURL(blob);
+                if (isMounted) setImageUrl(objectUrl);
+            } catch (err) {
+                if (isMounted) setError(true);
+            }
+        };
+        fetchImage();
+        return () => { isMounted = false; if (imageUrl) URL.revokeObjectURL(imageUrl); };
+    }, [workId]);
+    if (error) return <span className="text-muted fw-bold">No Image</span>;
+    if (!imageUrl) return <div className="spinner-border spinner-border-sm text-secondary" role="status"></div>;
+    return <img src={imageUrl} alt="Work" style={{ width: "100%", height: "100%", objectFit: "cover" }} />;
+};
+
 const Home = () => {
     const navigate = useNavigate();
     const [works, setWorks] = useState([]);
@@ -11,101 +39,52 @@ const Home = () => {
 
     useEffect(() => {
         const jwt = localStorage.getItem("jwt");
-        if (!jwt) {
-            navigate("/");
-            return;
-        }
-
+        if (!jwt) { navigate("/"); return; }
         const fetchHomeData = async () => {
             try {
                 const data = await ApiCommunication.searchWorks(jwt, "", []);
                 setWorks(data);
             } catch (error) {
                 console.error("データ取得エラー:", error);
-                if (error.message.includes("401")) {
-                    localStorage.removeItem("jwt");
-                    navigate("/");
-                }
-            } finally {
-                setLoading(false);
-            }
+            } finally { setLoading(false); }
         };
-
         fetchHomeData();
     }, [navigate]);
 
     return (
         <div className="d-flex w-100 m-0 p-0" style={{ minHeight: "100vh", backgroundColor: "#fff" }}>
-
             <Sidebar />
-
-            {/* メインコンテンツ */}
-            <main className="flex-grow-1" style={{
-                marginLeft: "240px",
-                padding: "60px 40px",
-                width: "calc(100% - 240px)",
-                minWidth: 0
-            }}>
-
+            <main className="flex-grow-1" style={{ marginLeft: "240px", padding: "60px 40px", width: "calc(100% - 240px)", minWidth: 0 }}>
                 <style>{`
-                    @media (max-width: 767px) {
-                        main { margin-left: 0 !important; width: 100% !important; padding: 20px !important; }
-                    }
-                    .work-card {
-                        border-radius: 15px; overflow: hidden; transition: all 0.3s ease;
-                        background: #f8f9fa; border: 2px solid #eee;
-                    }
-                    .work-card:hover {
-                        transform: translateY(-10px);
-                        box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important;
-                        border-color: #333;
-                    }
-                    .image-container {
-                        width: 100%; aspect-ratio: 1 / 1; background-color: #f0f0f0;
-                        display: flex; align-items: center; justify-content: center;
-                    }
-                    .empty-card {
-                        border-radius: 15px; border: 2px dashed #ddd;
-                        background: #fafafa; aspect-ratio: 1 / 1;
-                    }
+                    @media (max-width: 767px) { main { margin-left: 0 !important; width: 100% !important; padding: 20px !important; } }
+                    .custom-card { border: 2px solid #eee; border-radius: 20px; overflow: hidden; transition: all 0.3s ease; background-color: #fff; height: 100%; }
+                    .custom-card:hover { transform: translateY(-10px); box-shadow: 0 15px 40px rgba(0,0,0,0.15); border-color: #333; }
+                    .card-img-container { width: 100%; aspect-ratio: 1 / 1; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 1px solid #eee; }
+                    .empty-card { border-radius: 20px; border: 2px dashed #ddd; background: #fafafa; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; }
                 `}</style>
 
-                {/* タイトルセクション: 位置合わせ修正済み */}
                 <div className="mb-5 text-start">
                     <h1 className="m-0 p-0" style={{ fontSize: "3.5rem", fontWeight: "bold", lineHeight: "1.2" }}>✨ New Arrivals</h1>
                     <hr className="mx-0" style={{ width: "100%", maxWidth: "600px", borderTop: "5px solid #000", opacity: 1, marginTop: "10px" }} />
                     <p className="text-muted fs-5 mt-3">最新の注目作品をチェックしましょう</p>
                 </div>
 
-                {/* 作品グリッド */}
                 <div className="row g-4 g-md-5">
-                    {loading ? (
-                        [...Array(6)].map((_, i) => (
-                            <div className="col-12 col-md-6 col-xl-4" key={i}>
-                                <div className="placeholder-glow">
-                                    <div className="placeholder w-100" style={{ aspectRatio: "1/1", borderRadius: "15px" }} />
-                                </div>
-                            </div>
-                        ))
-                    ) : (
+                    {loading ? [...Array(6)].map((_, i) => (
+                        <div className="col-12 col-md-6 col-xl-4" key={i}>
+                            <div className="card custom-card placeholder-glow"><div className="placeholder w-100" style={{ aspectRatio: "1/1" }} /></div>
+                        </div>
+                    )) : (
                         works.map((item) => (
                             <div className="col-12 col-md-6 col-xl-4" key={item.id}>
-                                <div className="work-card shadow-sm h-100" onClick={() => navigate(`/works/${item.id}`)} style={{ cursor: "pointer" }}>
-                                    <div className="image-container">
-                                        <img
-                                            src={`http://localhost:8080/api/works/${item.id}/file`}
-                                            alt={item.title}
-                                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                            onError={(e) => {
-                                                e.target.style.display = 'none';
-                                                e.target.parentElement.innerHTML = '<span class="text-muted fs-3">No Image</span>';
-                                            }}
-                                        />
+                                <div className="card custom-card shadow-sm" onClick={() => navigate(`/works/${item.id}`)} style={{ cursor: "pointer" }}>
+                                    <div className="card-img-container">
+                                        <HomeWorkImage workId={item.id} />
                                     </div>
-                                    <div className="p-4 bg-white d-flex justify-content-between align-items-center border-top">
+                                    <div className="card-body p-4 d-flex justify-content-between align-items-center">
                                         <div className="text-truncate" style={{ maxWidth: "85%" }}>
-                                            <span className="fw-bold fs-3 d-block text-truncate">{item.title}</span>
-                                            <small className="text-muted">@{item.username}</small>
+                                            <h3 className="card-title fw-bold mb-1 text-truncate" style={{ fontSize: "1.8rem" }}>{item.title}</h3>
+                                            <p className="card-text text-muted mb-0 fs-5">@{item.username}</p>
                                         </div>
                                         <div style={{ width: "15px", height: "15px", borderRadius: "50%", backgroundColor: "#000" }} />
                                     </div>
@@ -113,21 +92,14 @@ const Home = () => {
                             </div>
                         ))
                     )}
-
-                    {/* グリッドを埋める空カード */}
-                    {!loading && works.length < 6 && (
-                        [...Array(6 - works.length)].map((_, i) => (
-                            <div className="col-12 col-md-6 col-xl-4" key={`empty-${i}`}>
-                                <div className="empty-card d-flex align-items-center justify-content-center">
-                                    <span className="text-muted fw-bold">No Data</span>
-                                </div>
-                            </div>
-                        ))
-                    )}
+                    {!loading && works.length < 6 && [...Array(6 - works.length)].map((_, i) => (
+                        <div className="col-12 col-md-6 col-xl-4" key={`empty-${i}`}>
+                            <div className="empty-card shadow-sm"><span className="text-muted fw-bold fs-4">Empty Slot</span></div>
+                        </div>
+                    ))}
                 </div>
             </main>
         </div>
     );
 };
-
 export default Home;

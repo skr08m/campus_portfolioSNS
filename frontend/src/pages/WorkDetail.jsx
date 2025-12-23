@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import ApiCommunicationExample from "../api/ApiCommunicationExample";
 import AuthenticatedImage from "../components/AuthenticatedImage";
 import { Badge } from "react-bootstrap";
-import { House, Search, Upload, Images, Person, Star, StarFill, X, ChatRightText, HeartFill, SendFill } from "react-bootstrap-icons";
+import { Star, StarFill, X, ChatRightText, HeartFill, SendFill } from "react-bootstrap-icons";
 import Sidebar from "../components/Sidebar";
 
 const WorkDetail = () => {
@@ -17,9 +17,7 @@ const WorkDetail = () => {
     const [commentText, setCommentText] = useState("");
     const [likes, setLikes] = useState(0);
 
-    // アルバム登録状態
     const [isInAlbum, setIsInAlbum] = useState(false);
-    // いいね登録状態
     const [isLiked, setIsLiked] = useState(false);
 
     useEffect(() => {
@@ -31,17 +29,14 @@ const WorkDetail = () => {
 
         const fetchDetail = async () => {
             try {
-                // 1. 作品詳細の取得
                 const result = await ApiCommunicationExample.fetchWorkDetail(jwt, workId);
                 setWork(result);
                 setLikes(result.likesCount || 0);
 
-                // 2. アルバムに既にあるかチェック
                 const albumList = await ApiCommunicationExample.fetchMyAlbum(jwt);
                 const existsInAlbum = albumList.some(item => String(item.id) === String(workId));
                 setIsInAlbum(existsInAlbum);
 
-                // 3. いいね済みかチェック
                 const likedStatus = localStorage.getItem(`liked_${workId}`) === "true";
                 setIsLiked(likedStatus);
 
@@ -55,7 +50,6 @@ const WorkDetail = () => {
         fetchDetail();
     }, [workId, navigate]);
 
-    // --- ハンドラー関数 ---
     const handleToggleAlbum = async () => {
         const jwt = localStorage.getItem("jwt");
         try {
@@ -119,7 +113,6 @@ const WorkDetail = () => {
 
     return (
         <div className="d-flex w-100 m-0 p-0" style={{ minHeight: "100vh", backgroundColor: "#fff" }}>
-            {/* サイドバー */}
             <Sidebar />
 
             <main className="flex-grow-1" style={{ marginLeft: "240px", padding: "60px 40px 60px 20px", width: "calc(100% - 240px)", minWidth: 0 }}>
@@ -130,6 +123,10 @@ const WorkDetail = () => {
                     .info-display-box { background-color: #fff; border: 2px solid #ddd; border-radius: 15px; padding: 30px; font-size: 1.4rem; min-height: 180px; text-align: left; }
                     .action-item { cursor: pointer; transition: all 0.2s ease-in-out; display: flex; flex-direction: column; align-items: center; position: relative; }
                     .like-count-badge { position: absolute; top: -8px; right: -12px; background-color: #e91e63; color: white; border-radius: 20px; padding: 2px 10px; font-size: 0.9rem; font-weight: bold; border: 2px solid white; }
+                    
+                    /* カルーセルの角丸と枠線の調整 */
+                    .carousel { border-radius: 15px; overflow: hidden; border: 2px solid #000; }
+                    .carousel-item { aspect-ratio: 21 / 9; background-color: #aaddff; }
                 `}</style>
 
                 <button className="fixed-close-btn" onClick={() => showComments ? setShowComments(false) : navigate(-1)}><X size={40} color="#000" /></button>
@@ -142,14 +139,34 @@ const WorkDetail = () => {
                 <div className="container-fluid p-0">
                     <div className="row g-0">
                         <div className="col-12 col-xl-11">
-                            {/* ★ AuthenticatedImage コンポーネントを使用 */}
-                            <div className="mb-2 shadow-sm overflow-hidden d-flex align-items-center justify-content-center border border-2 border-dark"
-                                style={{ width: "100%", aspectRatio: "21 / 9", backgroundColor: "#aaddff", borderRadius: "15px" }}>
-                                <AuthenticatedImage
-                                    workId={workId}
-                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                />
+
+                            {/* --- Bootstrap Carousel プレビュー表示 --- */}
+                            <div id="carouselExampleAutoplaying" className="carousel slide shadow-sm mb-2" data-bs-ride="carousel">
+                                <div className="carousel-inner">
+                                    <div className="carousel-item active">
+                                        <AuthenticatedImage
+                                            workId={workId}
+                                            className="d-block w-100"
+                                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                        />
+                                    </div>
+                                    {/* ダミーの2枚目（複数の画像データがある場合にループさせる構造） */}
+                                    <div className="carousel-item">
+                                        <div className="d-flex align-items-center justify-content-center h-100 bg-secondary text-white fs-2 fw-bold">
+                                            End of Gallery
+                                        </div>
+                                    </div>
+                                </div>
+                                <button className="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+                                    <span className="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span className="visually-hidden">Previous</span>
+                                </button>
+                                <button className="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+                                    <span className="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span className="visually-hidden">Next</span>
+                                </button>
                             </div>
+                            {/* --- カルーセル終了 --- */}
 
                             <div className="detail-card shadow-sm">
                                 {!showComments ? (
@@ -170,7 +187,7 @@ const WorkDetail = () => {
                                                             className="px-4 py-2 text-dark border border-dark"
                                                             style={{
                                                                 backgroundColor: "#d0d0d0",
-                                                                fontSize: "1.1rem", // ★ 文字サイズを固定
+                                                                fontSize: "1.1rem",
                                                                 fontWeight: "bold"
                                                             }}
                                                         >
