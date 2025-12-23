@@ -45,6 +45,13 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // パスワード一致チェック
+    if (formData.password !== formData.confirmPassword) {
+      alert("パスワードと確認用パスワードが一致しません。");
+      return; // ここで処理を終了し、サーバーには送信しない
+    }
+
     try {
       // 登録処理のロジック（省略せずに元のコードを維持）
       const regRes = await fetch("http://localhost:8080/api/auth/register", {
