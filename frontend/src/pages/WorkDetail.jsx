@@ -5,6 +5,7 @@ import ApiCommunicationExample from "../api/ApiCommunicationExample";
 import AuthenticatedImage from "../components/AuthenticatedImage";
 import { Badge } from "react-bootstrap";
 import { House, Search, Upload, Images, Person, Star, StarFill, X, ChatRightText, HeartFill, SendFill } from "react-bootstrap-icons";
+import Sidebar from "../components/Sidebar";
 
 const WorkDetail = () => {
     const { workId } = useParams();
@@ -119,20 +120,7 @@ const WorkDetail = () => {
     return (
         <div className="d-flex w-100 m-0 p-0" style={{ minHeight: "100vh", backgroundColor: "#fff" }}>
             {/* サイドバー */}
-            <aside className="d-none d-md-block shadow-sm" style={{ width: "240px", backgroundColor: "#e0e0e0", position: "fixed", left: 0, top: 0, height: "100vh", zIndex: 1000 }}>
-                <div className="text-center py-4">
-                    <h4 style={{ borderBottom: "1px solid #000", display: "inline-block", paddingBottom: "5px" }}>PortFolio</h4>
-                    <div className="mx-auto" style={{ width: "120px", height: "120px", borderRadius: "50%", backgroundColor: "white", margin: "20px 0" }} />
-                </div>
-                <ul className="list-group list-group-flush mt-2 px-3">
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/home")}><House className="me-3" size={24} /> ホーム</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/find")}><Search className="me-3" size={24} /> 見つける</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/upworks")}><Upload className="me-3" size={24} /> 作品投稿</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/pastworks")}><Images className="me-3" size={24} /> 過去作品</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }} onClick={() => navigate("/album")}><Star className="me-3" size={24} color="#f1c40f" /> マイアルバム</li>
-                    <li className="list-group-item bg-transparent border-0 py-4" style={{ cursor: "pointer" }}><Person className="me-3" size={24} /> プロフィール</li>
-                </ul>
-            </aside>
+            <Sidebar />
 
             <main className="flex-grow-1" style={{ marginLeft: "240px", padding: "60px 40px 60px 20px", width: "calc(100% - 240px)", minWidth: 0 }}>
                 <style>{`
