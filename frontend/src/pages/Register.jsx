@@ -167,7 +167,7 @@ const Register = () => {
           />
         </Form.Group>
 
-        {/* 修正ポイント: カテゴリー選択（Find.jsxと同様のUI） */}
+        {/* カテゴリー選択 */}
         <section className="mb-5 text-start">
           <Form.Label className="fw-bold">■ カテゴリー（興味のある分野）</Form.Label>
           <Row className="g-3 mt-1">
