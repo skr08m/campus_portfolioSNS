@@ -43,7 +43,7 @@ const LoginPage = () => {
       localStorage.setItem("jwt", jwt);
 
       // ★ 成功トーストを表示
-      toast.success("🚀 ログインに成功しました！", {
+      toast.success(" ログインに成功しました！", {
         position: "top-center",
         autoClose: 1500,
         hideProgressBar: true,
