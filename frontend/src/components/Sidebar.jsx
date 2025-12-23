@@ -58,6 +58,7 @@ const Sidebar = () => {
         display: "flex",
         flexDirection: "column",
         transition: "transform 0.3s ease-in-out",
+
         // スマホ時は isOpen の状態で位置を切り替える
         transform: window.innerWidth < 768 && !isOpen ? "translateX(-240px)" : "translateX(0)"
       }}>
@@ -89,7 +90,9 @@ const Sidebar = () => {
                   backgroundColor: isActive ? "#d0d0d0" : "transparent",
                   borderRadius: "10px",
                   cursor: "pointer",
-                  transition: "0.2s"
+                  transition: "0.2s",
+                  justifyContent: "center", // コンテンツを水平方向の中央に配置
+                  textAlign: "center"
                 }}
                 onClick={() => handleNavigate(item.path)}
               >
