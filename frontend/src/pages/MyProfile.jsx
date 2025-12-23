@@ -110,7 +110,7 @@ const MyProfile = () => {
                             </Col>
                             <Col className="pb-2">
                                 <h2 className="fw-bold m-0" style={{ fontSize: '2.5rem' }}>{user.username}</h2>
-                                <p className="text-muted m-0 fs-5">@{user.username}</p>
+                                <p className="text-muted m-0 fs-5">{user.mailAddress}</p>
                             </Col>
                         </Row>
 
