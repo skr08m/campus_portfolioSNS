@@ -10,7 +10,7 @@ const Find = () => {
     const [keyword, setKeyword] = useState("");
     const [selectedTags, setSelectedTags] = useState([]);
 
-    // 警告表示の状態管理
+    // ★ 警告表示の状態管理
     const [showAlert, setShowAlert] = useState(false);
 
     // 他の画面と共通のカテゴリーリスト

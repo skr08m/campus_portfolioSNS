@@ -2,7 +2,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ApiCommunication from "../api/ApiCommunicationExample";
-import { House, Search, Upload, Images, Person, BoxArrowRight, Star } from "react-bootstrap-icons";
 import Sidebar from "../components/Sidebar";
 
 const Home = () => {
