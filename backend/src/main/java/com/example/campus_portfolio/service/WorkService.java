@@ -8,26 +8,25 @@ import java.util.stream.Collectors;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.example.campus_portfolio.dto.CommentResponse;
 import com.example.campus_portfolio.dto.TagResponse;
 import com.example.campus_portfolio.dto.WorkCreateRequest;
 import com.example.campus_portfolio.dto.WorkFileHttpResponse;
 import com.example.campus_portfolio.dto.WorkInfoResponse;
+import com.example.campus_portfolio.entity.Comment;
 import com.example.campus_portfolio.entity.Tag;
 import com.example.campus_portfolio.entity.User;
 import com.example.campus_portfolio.entity.Work;
+import com.example.campus_portfolio.repository.CommentRepository;
 import com.example.campus_portfolio.repository.TagRepository;
 import com.example.campus_portfolio.repository.UserRepository;
 import com.example.campus_portfolio.repository.WorkRepository;
 import com.example.campus_portfolio.util.FileTypeConstants;
 
 import lombok.RequiredArgsConstructor;
-
-import com.example.campus_portfolio.dto.CommentResponse;
-import com.example.campus_portfolio.entity.Comment;
-import com.example.campus_portfolio.repository.CommentRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +37,9 @@ public class WorkService {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
 
-    // ★ マイアルバム一覧取得ロジック（MyAlbum.jsx用）
+    /**
+     * マイアルバム一覧取得ロジック
+     */
     @Transactional(readOnly = true)
     public List<WorkInfoResponse> getUserAlbum(User user) {
         return user.getAlbumWorks().stream()
@@ -46,40 +47,38 @@ public class WorkService {
                 .collect(Collectors.toList());
     }
 
-    // ★ 追加：過去作品（自分の投稿一覧）取得ロジック（PastWork.jsx用）
+    /**
+     * 過去作品（自分の投稿一覧）取得ロジック
+     */
     @Transactional(readOnly = true)
     public List<WorkInfoResponse> getMyWorks(User user) {
-        // データベースから、投稿者が自分(user)である作品をすべて取得
-        // workRepository.findByUser(user) を使用
         List<Work> myWorks = workRepository.findByUser(user);
-        
         return myWorks.stream()
                 .map(this::convertWorkToDTO)
                 .collect(Collectors.toList());
     }
 
-    // 作品一覧取得（オプションでタイトル検索）
+    /**
+     * 作品一覧取得（オプションでタイトル検索）
+     */
     public List<WorkInfoResponse> getWorkInfoList(String keyword) {
-        List<Work> responseWorkList = new ArrayList<>();
+        List<Work> responseWorkList;
         if (keyword == null || keyword.isBlank()) {
             responseWorkList = workRepository.findAll();
         } else {
             responseWorkList = workRepository.findByTitleContaining(keyword);
         }
-
-        List<WorkInfoResponse> res = new ArrayList<>();
-        for (Work w : responseWorkList) {
-            res.add(convertWorkToDTO(w));
-        }
-        return res;
+        return responseWorkList.stream().map(this::convertWorkToDTO).collect(Collectors.toList());
     }
 
-    // Work→WorkResponseに変換
+    /**
+     * WorkエンティティをWorkInfoResponse DTOに変換
+     */
     public WorkInfoResponse convertWorkToDTO(Work work) {
         WorkInfoResponse workResponse = new WorkInfoResponse();
         workResponse.setId(work.getWorkId());
         workResponse.setTitle(work.getTitle());
-        workResponse.setExplanation(work.getExplanation());
+        workResponse.setExplanation(work.getExplanation()); // getExplanationを使用
         workResponse.setRepositoryUrl(work.getRepositoryUrl());
         workResponse.setWorkUploadTime(String.valueOf(work.getWorkUploadTime()));
         workResponse.setWorkExtension(work.getWorkExtension());
@@ -104,16 +103,20 @@ public class WorkService {
             workResponse.setComments(commentDTOs);
         }
 
-        // tagの追加
+        // タグの変換
         List<TagResponse> tags = new ArrayList<>();
-        for (Tag w : work.getTags()) {
-            tags.add(new TagResponse(w.getTagId(), w.getTagName()));
+        if (work.getTags() != null) {
+            for (Tag t : work.getTags()) {
+                tags.add(new TagResponse(t.getTagId(), t.getTagName()));
+            }
         }
         workResponse.setTags(tags);
         return workResponse;
     }
 
-    // 作品データ取得
+    /**
+     * 作品データ取得
+     */
     public WorkFileHttpResponse getWorkFile(Long workId) {
         Work work = workRepository.findById(workId)
                 .orElseThrow(() -> new IllegalArgumentException("作品が存在しません"));
@@ -131,14 +134,9 @@ public class WorkService {
         return new WorkFileHttpResponse(work.getWorkData(), mediaType, disposition);
     }
 
-    // 作品の説明を取得
-    public String getWorkExplanation(Long workId) {
-        return workRepository.findById(workId)
-                .map(Work::getExplanation)
-                .orElseThrow(() -> new RuntimeException("作品が存在しません"));
-    }
-
-    // 作品投稿
+    /**
+     * 作品の新規投稿
+     */
     @Transactional
     public Work createWork(User user, WorkCreateRequest request) throws Exception {
         Work work = new Work();
@@ -166,26 +164,40 @@ public class WorkService {
         return workRepository.save(work);
     }
 
-    // 作品検索ロジック
+    /**
+     * 作品検索ロジック (キーワード ＋ カテゴリー)
+     */
     public List<WorkInfoResponse> searchWorks(String keyword, List<String> tags) {
+        // 1. まずキーワードで絞り込む（キーワードが空なら全件）
         List<Work> works = (keyword != null && !keyword.isBlank()) 
             ? workRepository.findByTitleContaining(keyword) : workRepository.findAll();
 
+        // 2. タグ指定がある場合、さらにフィルタリング
         if (tags != null && !tags.isEmpty()) {
             works = works.stream().filter(work -> {
-                List<String> workTagNames = work.getTags().stream().map(Tag::getTagName).toList();
-                return workTagNames.containsAll(tags);
-            }).toList();
+                List<String> workTagNames = work.getTags().stream()
+                        .map(Tag::getTagName)
+                        .toList();
+                // 選択されたタグのいずれか1つでも含まれていればヒット（OR検索）
+                // 全てを含ませたい場合は .containsAll(tags) に戻してください
+                return tags.stream().anyMatch(workTagNames::contains);
+            }).collect(Collectors.toList());
         }
         return works.stream().map(this::convertWorkToDTO).collect(Collectors.toList());
     }
 
+    /**
+     * 作品詳細情報取得
+     */
     public WorkInfoResponse getWorkDetailById(Long workId) {
         Work work = workRepository.findById(workId)
                 .orElseThrow(() -> new RuntimeException("指定された作品IDが存在しません"));
         return convertWorkToDTO(work);
     }
 
+    /**
+     * コメント追加
+     */
     @Transactional
     public void addComment(User user, Long workId, String content) {
         Work work = workRepository.findById(workId).orElseThrow(() -> new RuntimeException("作品が存在しません"));
@@ -197,19 +209,51 @@ public class WorkService {
         commentRepository.save(comment);
     }
 
+    /**
+     * いいね増加
+     */
     @Transactional
     public int incrementLike(Long workId) {
         Work work = workRepository.findById(workId).orElseThrow();
         work.setLikesCount((work.getLikesCount() == null ? 0 : work.getLikesCount()) + 1);
-        workRepository.save(work);
         return work.getLikesCount();
     }
 
+    /**
+     * いいね減少
+     */
+    @Transactional
+    public int decrementLike(Long workId) {
+        Work work = workRepository.findById(workId)
+                .orElseThrow(() -> new RuntimeException("作品が存在しません"));
+        int currentLikes = (work.getLikesCount() == null) ? 0 : work.getLikesCount();
+        if (currentLikes > 0) {
+            work.setLikesCount(currentLikes - 1);
+        }
+        return work.getLikesCount();
+    }
+
+    /**
+     * アルバム追加
+     */
     @Transactional
     public void addWorkToAlbum(User user, Long workId) {
         Work work = workRepository.findById(workId).orElseThrow();
         if (!user.getAlbumWorks().contains(work)) {
             user.getAlbumWorks().add(work);
+            userRepository.save(user);
+        }
+    }
+
+    /**
+     * アルバム削除
+     */
+    @Transactional
+    public void removeWorkFromAlbum(User user, Long workId) {
+        Work work = workRepository.findById(workId)
+                .orElseThrow(() -> new RuntimeException("作品が存在しません"));
+        if (user.getAlbumWorks().contains(work)) {
+            user.getAlbumWorks().remove(work);
             userRepository.save(user);
         }
     }

@@ -26,4 +26,11 @@ public interface WorkRepository extends JpaRepository<Work, Long> {
 
     // ★ 追加：投稿者(User)に基づいて作品一覧を取得する
     List<Work> findByUser(User user);
+
+    // ★ 修正：キーワードとタグの両方に対応した検索メソッドを追加
+    // DISTINCT を付けないと、複数のタグが一致した時に同じ作品が重複して表示されます
+    @Query("SELECT DISTINCT w FROM Work w LEFT JOIN w.tags t WHERE " +
+           "(:keyword IS NULL OR :keyword = '' OR w.title LIKE %:keyword% OR w.explanation LIKE %:keyword%) " +
+           "AND (:tags IS NULL OR t.tagName IN :tags)")
+    List<Work> searchWorks(@Param("keyword") String keyword, @Param("tags") List<String> tags);
 }

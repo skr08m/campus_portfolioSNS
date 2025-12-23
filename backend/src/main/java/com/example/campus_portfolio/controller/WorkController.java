@@ -117,7 +117,13 @@ public ResponseEntity<?> getMyWorks() {
         }
     }
 
-    
+    // いいね取り消し
+@PostMapping("/{workId}/unlike")
+public ResponseEntity<Integer> removeLike(@PathVariable Long workId) {
+    // Service側にデクリメント（-1）するメソッドを作成してください
+    int newLikes = workService.decrementLike(workId); 
+    return ResponseEntity.ok(newLikes);
+}
 
     // いいね更新
     @PostMapping("/{workId}/like")
@@ -132,5 +138,17 @@ public ResponseEntity<?> getMyWorks() {
         User user = authService.getCurrentUser();
         workService.addWorkToAlbum(user, workId);
         return ResponseEntity.ok(Map.of("message", "Album added"));
+    }
+
+    // マイアルバム削除を追加
+    @PostMapping("/{workId}/album/remove") // 安全のためPOSTで実装します
+    public ResponseEntity<?> removeFromAlbum(@PathVariable Long workId) {
+        try {
+            User user = authService.getCurrentUser();
+            workService.removeWorkFromAlbum(user, workId); // Service側にこのメソッドが必要です
+            return ResponseEntity.ok(Map.of("message", "Album removed"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("エラー", e.getMessage()));
+        }
     }
 }
