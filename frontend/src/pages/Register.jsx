@@ -2,6 +2,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Form, Button, Row, Col } from 'react-bootstrap';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -48,12 +50,15 @@ const Register = () => {
 
     // パスワード一致チェック
     if (formData.password !== formData.confirmPassword) {
-      alert("パスワードと確認用パスワードが一致しません。");
-      return; // ここで処理を終了し、サーバーには送信しない
+      toast.error("パスワードと確認用パスワードが一致しません。", {
+        position: "top-center",
+        theme: "colored",
+      });
+      return;
     }
 
     try {
-      // 登録処理のロジック（省略せずに元のコードを維持）
+      // 1. アカウント登録
       const regRes = await fetch("http://localhost:8080/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -68,12 +73,14 @@ const Register = () => {
       const jwt = await regRes.text();
       localStorage.setItem("jwt", jwt);
 
+      // 2. プロフィール（自己紹介）更新
       await fetch("http://localhost:8080/api/users/me", {
         method: "PATCH",
         headers: { "Content-Type": "application/json", "Authorization": `Bearer ${jwt}` },
         body: JSON.stringify({ selfIntroduction: formData.bio }),
       });
 
+      // 3. お気に入りタグ更新
       const selectedTagIds = selectedTags.map(tag => tag.tagId);
       await fetch("http://localhost:8080/api/users/me/favorite-tags", {
         method: "PUT",
@@ -81,17 +88,38 @@ const Register = () => {
         body: JSON.stringify(selectedTagIds),
       });
 
-      alert("新規登録とプロフィールの設定が完了しました！");
-      navigate("/home");
+      // ★ 成功トーストを表示
+      toast.success("✨ 登録が完了しました！", {
+        position: "top-center",
+        autoClose: 2000,
+        hideProgressBar: true,
+        closeOnClick: false,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "dark",
+      });
+
+      // トーストを見せるために少し遅延させて遷移
+      setTimeout(() => {
+        navigate("/home");
+      }, 2000);
+
     } catch (error) {
       console.error(error);
-      alert(error.message);
+      // ★ エラーをトーストで表示
+      toast.error(error.message, {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "colored",
+      });
     }
   };
 
   return (
     <Container className="mt-4 mx-auto" style={{ maxWidth: '800px' }}>
-      {/* 統一されたインラインCSSを追加 */}
+      {/* ★ トーストコンテナ */}
+      <ToastContainer />
+
       <style>{`
         .tag-btn {
           border-radius: 30px; padding: 12px 20px;
